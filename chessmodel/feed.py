@@ -19,32 +19,26 @@ c2i = {
 }
 
 
-def create_feed(model, board_with_side, label):
+def create_feed(model, board_with_side, scores):
     input = []
-    rotate = []
+
     for board, red in board_with_side:
         if red is False:
             board = [rule.flip_side(c) for c in board]
         pos = rule.find_chess(board, 'K')[0]
         if pos < 45:
             board = rule.rotate_board(board)
-            rotate.append(True)
-        else:
-            rotate.append(False)
-        board = [c2i[c] for c in board]
+        board = [rule.score_map[c] for c in board]
         input.append(board)
 
     feed = {
         model.input: input
     }
-    if label is not None:
-        label = [(x if not r else 89 - x, y if not r else 89 - y) for (x, y), r in zip(label, rotate)]
-        label = [x+y*90 for x, y in label]
+    if scores is not None:
+        label = [score if red else -score for (_, red), score in zip(board_with_side, scores)]
         feed[model.label] = label
     return feed
 
 
-def unfeed(moves, red):
-    moves = [(x if red else 89 - x, y if red else 89 - 9) for x, y in moves]
-    return moves
-
+def unfeed(scores, red):
+    return [score if red else -score for score in scores]

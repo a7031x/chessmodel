@@ -98,12 +98,13 @@ namespace UI
             return r;
         }
 
-        public double GetScore(byte[] chessBoard, bool red)
+        public Tuple<double, double> GetScore(byte[] chessBoard, bool red)
         {
             var board = TransformBoard(chessBoard);
             var command = $"evaluate {(red ? 1 : 0)} {board}";
             var response = Call(command);
-            return double.Parse(response);
+            var scores = response.Split(' ');
+            return Tuple.Create(double.Parse(scores[0]), double.Parse(scores[1]));
         }
 
         internal Tuple<int, int> Evaluate(byte[] chessBoard, bool red)

@@ -1,3 +1,5 @@
+BASE = 100
+GAMEOVER_THRESHOLD = 500 * BASE
 
 def next_steps(board, red):
     steps = []
@@ -219,20 +221,20 @@ def next_board(board, move):
 
 
 score_map = {
-    'R': 1000,
-    'r': -1000,
-    'H': 400,
-    'h': -400,
-    'E': 100,
-    'e': -100,
-    'B': 100,
-    'b': -100,
-    'K': 100000,
-    'k': -100000,
-    'C': 400,
-    'c': -400,
-    'P': 60,
-    'p': -60,
+    'R': 10 * BASE,
+    'r': -10 * BASE,
+    'H': 4 * BASE,
+    'h': -4 * BASE,
+    'E': 1 * BASE,
+    'e': -1 * BASE,
+    'B': 1 * BASE,
+    'b': -1 * BASE,
+    'K': 1000 * BASE,
+    'k': -1000 * BASE,
+    'C': 4 * BASE,
+    'c': -4 * BASE,
+    'P': 0.6 * BASE,
+    'p': -0.6 * BASE,
     ' ': 0
 }
 
