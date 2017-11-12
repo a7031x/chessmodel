@@ -65,7 +65,7 @@ class Model:
         with tf.name_scope('optimizer'):
             tvars = tf.trainable_variables()
             grads, _ = tf.clip_by_global_norm(tf.gradients(loss, tvars), 5)
-            optimizer = tf.train.AdamOptimizer(0.001)
+            optimizer = tf.train.GradientDescentOptimizer(0.1)
             train_optimizer = optimizer.apply_gradients(zip(grads, tvars), global_step=tf.contrib.framework.get_or_create_global_step())
             return train_optimizer
 

@@ -6,6 +6,7 @@ import console
 from options import FLAGS
 from model import Model
 from feed import *
+from datetime import datetime
 import random
 import rule
 
@@ -24,7 +25,18 @@ class game:
 
 
     def next_moves(self):
-        return rule.next_steps(self.board, self.red)
+        steps = rule.next_steps(self.board, self.red)
+        steps = sorted(steps, key=lambda x: abs(rule.score_map[self.board[x[1]]]), reverse=True)
+        temp = steps[:5]
+        random.shuffle(temp)
+        steps = temp + steps[5:]
+        for f, t in temp:
+            if self.board[t] in ['K', 'k']:
+                r = [(f, t)]
+                steps.remove((f, t))
+                r += steps
+                return r
+        return steps
 
 
     def valid_moves(self, output, total_moves=10):
@@ -96,6 +108,8 @@ def main(_):
                     print(valid_moves[0])
                 elif command == 'train' or command == 'default':
                     iteration = 0
+                    total_complete = 0
+                    start_time = datetime.utcnow()
                     while True:
                         print('start iteration {}'.format(iteration))
                         games = [game() for _ in range(BATCH_SIZE)]
@@ -103,12 +117,13 @@ def main(_):
                         steps = 0
                         while 0 != len(games):
                             feed = create_feed(model, [(g.board, g.red) for g in games], None)
-                            output = model.infer(sess, feed)
-                            valid_moves = [g.valid_moves(o) for g, o in zip(games, output)]
-                            best_moves = [random.sample(vm[0:5], 1)[0] for vm in valid_moves]
+                            #output = model.infer(sess, feed)
+                            #valid_moves = [g.valid_moves(o) for g, o in zip(games, output)]
+                            valid_moves = [g.next_moves() for g in games]
+                            best_moves = [vm[0] for vm in valid_moves]
                             [g.move(m) for g, m in zip(games, best_moves)]
                             complete += [g for g in games if g.game_over()]
-                            games = [g for g in games if not g.game_over() and g.steps < 100]
+                            games = [g for g in games if not g.game_over() and g.steps < 30]
                             steps += 1
                             print('step: {} complete: {} games: {}'.format(steps, len(complete), len(games)))
 
@@ -118,18 +133,28 @@ def main(_):
                         print('{} games complete'.format(len(complete)))
                         total_loss = 0
                         counter = 0
+                        inputs = []
+                        labels = []
                         for g in complete:
+                            inputs += [(x, g.win_color() == 'red') for x, _ in g.win_records()]
+                            labels += [m for _, m in g.win_records()]
+
+                        for index in range(0, len(inputs), BATCH_SIZE):
+                            batch_size = min(BATCH_SIZE, len(inputs) - index)
                             feed = create_feed(
                                 model,
-                                [(x, g.win_color() == 'red') for x, _ in g.win_records()],
-                                [m for _, m in g.win_records()])
+                                inputs[index:index+batch_size],
+                                labels[index:index+batch_size])
                             _, loss = model.train(sess, feed)
-                            loss /= g.steps
                             total_loss += loss
-                            counter += 1
-                            print('{} game trained, loss: {:.2f}'.format(counter, loss))
+                            counter += batch_size
+                            print('{}/{}, loss: {:.2f}'.format(counter, len(inputs), loss / batch_size))
 
-                        print('iteration: {}, loss: {:.2f}'.format(iteration, total_loss / counter))
+                        total_complete += len(complete)
+                        duration = datetime.utcnow() - start_time
+                        
+                        print('iteration: {}, loss: {:.2f}, total: {}, rate: {}'
+                              .format(iteration, total_loss / counter, total_complete, duration.seconds / total_complete))
                         sv.saver.save(sess, FLAGS.output_dir, global_step=sv.global_step)
                         iteration += 1
 
