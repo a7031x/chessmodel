@@ -221,8 +221,8 @@ namespace UI
 
         private void refreshScore()
         {
-            var score = Python.Instance.GetScore(snap.Board, snap.RedTurn);
-            scoreLabel.Text = $"score: {score}";
+            var move = Python.Instance.Evaluate(snap.Board, snap.RedTurn);
+            scoreLabel.Text = $"move: {Utility.GetMoveText(snap.Board, move.Item1, move.Item2)}";
         }
 
         private void ValidateMoves()

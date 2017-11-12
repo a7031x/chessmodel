@@ -148,12 +148,14 @@ def next_cannon_steps(board, pos):
                 if ' ' == board[p]:
                     steps.append(p)
                 else:
-                    counter = 1
+                    counter += 1
             elif counter == 1:
                 if side(board[p]) * side(board[pos]) < 0:
                     steps.append(p)
                     counter = 2
                     break
+            else:
+                break
     for r in [range(py+1, 10), range(py-1, -1, -1)]:
         counter = 0
         for y in r:
@@ -162,12 +164,14 @@ def next_cannon_steps(board, pos):
                 if ' ' == board[p]:
                     steps.append(p)
                 else:
-                    counter = 1
+                    counter += 1
             elif counter == 1:
                 if side(board[p]) * side(board[pos]) < 0:
                     steps.append(p)
                     counter = 2
                     break
+            else:
+                break
     return steps
 
 

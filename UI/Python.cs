@@ -105,5 +105,14 @@ namespace UI
             var response = Call(command);
             return double.Parse(response);
         }
+
+        internal Tuple<int, int> Evaluate(byte[] chessBoard, bool red)
+        {
+            var board = TransformBoard(chessBoard);
+            var command = $"evaluate {(red ? 1 : 0)} {board}";
+            var response = Call(command);
+            var move = response.Split(new[] { '(', ')', ',', ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(int.Parse);
+            return Tuple.Create(move.First(), move.Last());
+        }
     }
 }
