@@ -11,6 +11,7 @@
 #include <chrono>
 #include <ctime>
 #include <iostream>
+#include <unordered_set>
 namespace fs = std::experimental::filesystem;
 
 class search_t
@@ -55,7 +56,7 @@ public:
 	std::vector<search_item_t> search(const std::string& board, bool red, int depth)
 	{
 		std::vector<search_item_t> r;
-		deep_search(r, depth, board, red, depth, -rule_t::gameover_threshold() * 3, rule_t::gameover_threshold() * 3);
+		deep_search(r, depth, board, red, depth, 0, -rule_t::gameover_threshold() * 3, rule_t::gameover_threshold() * 3);
 		std::stable_sort(r.begin(), r.end(), [red](const search_item_t& r0, const search_item_t& r1)
 		{
 			return red ? (r0.score > r1.score) : (r0.score < r1.score);
@@ -69,7 +70,8 @@ public:
 		hash_size = _hash.size();
 	}
 private:
-	int deep_search(std::vector<search_item_t>& pack, int org_depth, const std::string& board, bool red, int depth, int minscore, int maxscore)
+	int deep_search(std::vector<search_item_t>& pack, int org_depth, const std::string& board, bool red,
+		int depth, int captured, int minscore, int maxscore)
 	{
 		auto key = compute_hash(board, red);
 		auto hash = find_hash(key);
@@ -99,7 +101,7 @@ private:
 			next_boards.push_back(next_board);
 			next_scores.push_back(next_score);
 		}
-		if (1 == depth || abs(best_score) >= rule_t::gameover_threshold())
+		if (1 >= depth + captured || abs(best_score) >= rule_t::gameover_threshold())
 		{
 			if (abs(best_score) >= rule_t::gameover_threshold())
 			{
@@ -124,9 +126,11 @@ private:
 		best_score = red ? -rule_t::gameover_threshold() * 3 : rule_t::gameover_threshold() * 3;
 		for (auto index : idx)
 		{
+			static std::unordered_set<char> matter = { 'R', 'r', 'H', 'h', 'C', 'c' };
 			auto move = moves[index];
-			auto board = next_boards[index];
-			auto next_score = deep_search(pack, org_depth, board, !red, depth - 1, minscore, maxscore);
+			int captive = matter.find(board[move.second]) != matter.end() ? 1 : 0;
+			auto next_board = next_boards[index];
+			auto next_score = deep_search(pack, org_depth, next_board, !red, depth - 1, std::min(captured + captive, 3), minscore, maxscore);
 			if (red && next_score > best_score || !red && next_score < best_score)
 			{
 				best_score = next_score;

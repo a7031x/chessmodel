@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,7 +23,7 @@ namespace UI
     {
         private ChessBoardData data = new ChessBoardData();
         private ChessBoardSnap snap;
-
+        private Tuple<int, int> adviceMove;
         public ChessBoard()
         {
             InitializeComponent();
@@ -221,8 +222,14 @@ namespace UI
 
         private void refreshScore()
         {
+            var sw = Stopwatch.StartNew();
             var move_score = Python.Instance.Advice(snap.Board, snap.RedTurn);
-            scoreLabel.Text = $"score: {Utility.GetMoveText(snap.Board, move_score.Item1, move_score.Item2)}: {move_score.Item3}";
+            sw.Stop();
+            scoreLabel.Text =
+                $"move: {Utility.GetMoveText(snap.Board, move_score[0], move_score[1])}\n" +
+                $"score: {move_score[2]}\n" +
+                $"elapsed: {sw.ElapsedMilliseconds}";
+            adviceMove = Tuple.Create(move_score[0], move_score[1]);
         }
 
         private void ValidateMoves()
@@ -269,6 +276,16 @@ namespace UI
         {
             snap = data.GetSnap(snap.StepCounter, !snap.RedPlayer);
             refresh();
+        }
+
+        private void aiMove_Click(object sender, RoutedEventArgs e)
+        {
+            data.Move(snap.RedPlayer, adviceMove.Item1, adviceMove.Item2);
+            snap = data.GetCurrentSnap(snap.RedPlayer);
+            refreshList();
+            e.Handled = true;
+            moveList.SelectedIndex = moveList.Items.Count - 1;
+            snap.StepCounter = moveList.Items.Count - 1;
         }
     }
 
