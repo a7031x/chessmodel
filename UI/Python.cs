@@ -118,6 +118,15 @@ namespace UI
             return Tuple.Create(double.Parse(scores[0]), double.Parse(scores[1]));
         }
 
+        public Tuple<int, int, int> Advice(byte[] chessBoard, bool red)
+        {
+            var board = TransformBoard(chessBoard);
+            var command = $"advice {(red ? 1 : 0)} {board}";
+            var response = Call(command);
+            var move = response.Split(new[] { '(', ')', ',', ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToArray();
+            return Tuple.Create(move[0], move[1], move[2]);
+        }
+
         internal Tuple<int, int> Evaluate(byte[] chessBoard, bool red)
         {
             var board = TransformBoard(chessBoard);

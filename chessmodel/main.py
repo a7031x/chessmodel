@@ -10,14 +10,22 @@ import random
 import rule
 import math
 from datetime import datetime
-from search import SearchEngine
 import ast
 import engine as ec
 
 
+def engine_command(cmd):
+    return ast.literal_eval(ec.command(cmd))
+
+
+def search(board, red, depth):
+    moves, scores, boards = engine_command('search {} {} {}'.format(1 if red else 0, board.replace(' ', '#'), depth))
+    boards = [b.replace('#', ' ') for b in boards]
+    return moves, scores, boards
+
+
 def main(_):
     initializer = tf.random_uniform_initializer(-0.05, 0.05)
-    engine = SearchEngine(FLAGS.output_dir)
     with tf.Graph().as_default():
         with tf.variable_scope('Model', reuse=None, initializer=initializer):
             model = Model()
@@ -41,7 +49,11 @@ def main(_):
                         feed = create_feed(model, [(board, red)], None)
                         score = model.evaluate(sess, feed)
                         score = unfeed(score, red)
-                        print(score[0], SearchEngine().search(board, red, 4)[1][0])
+                        print(score[0], search(board, red, 4)[1][0])
+                elif command == 'advice':
+                    red, board = parameter
+                    moves, scores, _ = search(board, red, 5)
+                    print(moves[0], scores[0])
                 elif command == 'train' or command == 'default':
                     iteration = 0
                     while True:
@@ -53,8 +65,8 @@ def main(_):
                         record_sides = []
                         start_time = datetime.utcnow()
                         while True:
-                            perf = engine.performance_counter
-                            _, scores, boards = engine.search(board, red, 3)
+                            moves, scores, boards = search(board, red, 5)
+                            hash_hit, hash_size = engine_command('hash_counter')
                             score = scores[0]
                             record_boards.append(board)
                             record_scores.append(score)
@@ -63,7 +75,7 @@ def main(_):
                             if abs(score) >= rule.GAMEOVER_THRESHOLD or steps >= 200:
                                 break
                             if steps % 20 == 0:
-                                print('step {}, score {}, hash: {}/{}'.format(steps, score, perf.hash_hit, perf.hash_size))
+                                print('step {}, score {}, hash: {}/{}'.format(steps, score, hash_hit, hash_size))
                             board = random.sample(boards[0:(3 if steps > 1 else len(boards))], 1)[0]
                             red = not red
                         end_time = datetime.utcnow()
@@ -75,7 +87,6 @@ def main(_):
                               .format(iteration, duration.seconds, steps, record_scores[-1], loss))
                         iteration += 1
                         sv.saver.save(sess, FLAGS.output_dir, global_step=sv.global_step)
-                        engine.save()
 
 
 if __name__ == "__main__":

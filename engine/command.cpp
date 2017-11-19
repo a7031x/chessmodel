@@ -12,8 +12,18 @@ std::vector<std::string> split(const std::string& text)
 	return results;
 }
 
-std::string join(const std::vector<std::string>& tokens, const std::string& separator,
-	const std::string& left = "", const std::string& right = "")
+template<typename T> std::string tostring(const T& v)
+{
+	return std::to_string(v);
+}
+
+template<> std::string tostring(const std::string& v)
+{
+	return v;
+}
+
+template<typename T>
+std::string join(const std::vector<T>& tokens, const std::string& separator, const std::string& left = "", const std::string& right = "")
 {
 	std::string r = left;
 	int index = 0;
@@ -21,7 +31,7 @@ std::string join(const std::vector<std::string>& tokens, const std::string& sepa
 	{
 		if (index++)
 			r += separator;
-		r += token;
+		r += tostring(token);
 	}
 	r += right;
 	return r;
@@ -58,6 +68,7 @@ std::string format_scores(const std::vector<int>& scores)
 //get_moves 1 rhebkbehr##########c#####c#p#p#p#p#p##################P#P#P#P#P#C#####C##########RHEBKBEHR
 std::string command(const std::vector<std::string>& tokens)
 {
+	static search_t search;
 	if ("get_moves" == tokens[0])
 	{
 		int red = std::stoi(tokens[1]);
@@ -72,7 +83,6 @@ std::string command(const std::vector<std::string>& tokens)
 		std::string board = tokens[2];
 		int depth = std::stoi(tokens[3]);
 		std::replace(board.begin(), board.end(), '#', ' ');
-		static search_t search;
 		auto pack = search.search(board, red, depth);
 		std::vector<std::pair<int, int>> moves;
 		std::vector<std::string> boards;
@@ -83,7 +93,13 @@ std::string command(const std::vector<std::string>& tokens)
 			boards.push_back(x.board);
 			scores.push_back(x.score);
 		}
-		return join({ format_moves(moves), format_scores(scores), format_boards(boards) }, ",", "(", ")");
+		return join<std::string>({ format_moves(moves), format_scores(scores), format_boards(boards) }, ",", "(", ")");
+	}
+	else if ("hash_counter" == tokens[0])
+	{
+		int64_t hit_count = 0, hash_size = 0;
+		search.get_hash_counter(hit_count, hash_size);
+		return join<int64_t>({ hit_count, hash_size }, ",", "(", ")");
 	}
 	return "";
 }

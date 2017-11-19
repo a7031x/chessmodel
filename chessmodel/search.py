@@ -2,6 +2,8 @@ import rule
 import random
 import os
 import pickle
+import engine as ec
+import ast
 
 class PerformanceCounter:
     def __init__(self):
@@ -54,10 +56,7 @@ class SearchEngine:
 
 
     def find_hash(self, key):
-        if key in self.hash:
-            return self.hash[key]
-        else:
-            return None, None, None
+        return None, None, None
 
 
     def save_hash(self, key, depth, score, move):
@@ -71,7 +70,7 @@ class SearchEngine:
         self.scores = []
         self.boards = []
         self.deep_search(board, depth, red, (-rule.GAMEOVER_THRESHOLD*3, rule.GAMEOVER_THRESHOLD*3))
-        idx = [i for _, i in sorted(zip(self.scores, range(len(self.scores))), reverse=red)]
+        idx = [i for _, i in sorted(zip(self.scores, range(len(self.scores))), key=lambda x: -x[0] if red else x[0])]
         assert(len(self.scores) > 0)
         return [self.moves[i] for i in idx], [self.scores[i] for i in idx], [self.boards[i] for i in idx]
 
@@ -107,14 +106,15 @@ class SearchEngine:
                 self.fill_moves(board, best_move, best_score, red)
             self.save_hash(key, depth, best_score, best_move)
             return best_score
-
-        heuristics = sorted(zip(next_scores, moves, next_boards), reverse=red)
-        assert(len(heuristics) > 0)
+        idx = range(len(moves))
+        idx = sorted(idx, key=lambda i: -next_scores[i] if red else next_scores[i])
         best_score = -rule.GAMEOVER_THRESHOLD*3 if red else rule.GAMEOVER_THRESHOLD*3
         best_move = None
         lb = window[0]
         ub = window[1]
-        for score, move, board in heuristics:
+        for index in idx:
+            move = moves[index]
+            board = next_boards[index]
             next_score = self.deep_search(board, depth-1, not red, window)
             if (red and next_score > best_score) or (not red and next_score < best_score):
                 best_score = next_score
@@ -143,13 +143,12 @@ class SearchEngine:
 
 if __name__ == "__main__":
     engine = SearchEngine()
-    board = "r#ebk#ehr####b#####ch####c#p#p#p#p#p##################P#P#P#P#P#C##C#H###########RHEBKBE#R".replace('#', ' ')
-    _, scores, _ = engine.search(board, True, 3)
-    assert(abs(scores[0]) < rule.GAMEOVER_THRESHOLD)
-    board = rule.initial_board()
-    moves, scores, boards = engine.search(board, True, 4)
-    assert(scores[-1] < 0)
-    print('red worst move: {}'.format(scores[-1]))
-    moves, scores, boards = engine.search(board, False, 4)
-    assert(scores[-1] > 0)
-    print('black worst move: {}'.format(scores[-1]))
+    board = '###bkb################e######p#p#c#p######################c######R#E###E####B#####r##KB###'
+#    board = '#he#kbehr####b#############p#p#pCp#p###P#####P############cc##P#####C####r#######RHEBKBEHR'
+#    board = 'rhebkbehr##################p#p#p#p#p#########P#c##########P#P#P##C####C#Rc#########EBKBEHR'
+    red = True
+    depth = 3
+    moves, scores, boards = engine.search(board.replace('#', ' '), red, depth)
+    res = ec.command('search {} {} {}'.format(1 if red else 0, board, depth))
+    moves2, scores2, boards2 = ast.literal_eval(res)
+    assert(scores == scores2)

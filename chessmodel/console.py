@@ -10,7 +10,7 @@ def read():
         parameter = None
     elif command == 'exit':
         parameter = None
-    elif command == 'get_moves' or command == 'evaluate':
+    elif command in ['get_moves', 'evaluate', 'advice']:
         is_red = int(tokens[1]) == 1
         board = tokens[2].replace('#', ' ')
         parameter = is_red, board
