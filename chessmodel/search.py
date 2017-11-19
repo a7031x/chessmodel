@@ -24,7 +24,6 @@ class SearchEngine:
 
 
     def load(self):
-
         if self.folder is not None:
             path = os.path.join(self.folder, 'hash.sav')
             if os.path.isfile(path):

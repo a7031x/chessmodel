@@ -4,31 +4,33 @@
 /*
  * Implements an example function.
  */
-PyDoc_STRVAR(engine_example_doc, "example(obj, cmd)\
+PyDoc_STRVAR(engine_example_doc, "command(cmd)\
 \
 Example function");
 
-extern char* command(char*);
+extern char* command(const char*);
 
-PyObject *engine_example(PyObject *self, PyObject *args, PyObject *kwargs) {
+PyObject *engine_command(PyObject *self, PyObject *args, PyObject *kwargs) {
     /* Shared references that do not need Py_DECREF before returning. */
-    PyObject *obj = NULL;
     const char* cmd = NULL;
-
+	char* respond;
+	PyObject* r;
     /* Parse positional and keyword arguments */
-    static char* keywords[] = { "obj", "cmd", NULL };
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "Os", keywords, &obj, &cmd)) {
+    static char* keywords[] = { "cmd", NULL };
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s", keywords, &cmd)) {
         return NULL;
     }
-
-	return PyUnicode_FromString(command(cmd));
+	respond = command(cmd);
+	r = PyUnicode_FromString(respond);
+	free(respond);
+	return r;
 }
 
 /*
  * List of functions to add to engine in exec_engine().
  */
 static PyMethodDef engine_functions[] = {
-    { "example", (PyCFunction)engine_example, METH_VARARGS | METH_KEYWORDS, engine_example_doc },
+    { "command", (PyCFunction)engine_command, METH_VARARGS | METH_KEYWORDS, engine_example_doc },
     { NULL, NULL, 0, NULL } /* marks end of array */
 };
 

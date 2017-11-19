@@ -11,7 +11,8 @@ import rule
 import math
 from datetime import datetime
 from search import SearchEngine
-from engine import example
+import ast
+import engine as ec
 
 
 def main(_):
@@ -29,6 +30,8 @@ def main(_):
                     red, board = parameter
                     moves = rule.next_steps(board, red)
                     print(moves)
+                    #moves2 = ec.command(command + ' ' + str(1 if red else 0) + ' ' + board.replace(' ', '#'))
+                    #print(moves2)
                 elif command == 'evaluate':
                     red, board = parameter
                     basic_score = rule.basic_score(board)

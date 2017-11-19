@@ -154,8 +154,9 @@ def next_cannon_steps(board, pos):
             elif counter == 1:
                 if side(board[p]) * side(board[pos]) < 0:
                     steps.append(p)
+                if ' ' != board[p]:
                     counter = 2
-                    break
+                    break;
             else:
                 break
     for r in [range(py+1, 10), range(py-1, -1, -1)]:
@@ -170,8 +171,9 @@ def next_cannon_steps(board, pos):
             elif counter == 1:
                 if side(board[p]) * side(board[pos]) < 0:
                     steps.append(p)
+                if ' ' != board[p]:
                     counter = 2
-                    break
+                    break;
             else:
                 break
     return steps
@@ -233,8 +235,8 @@ score_map = {
     'k': -1000 * BASE,
     'C': 4 * BASE,
     'c': -4 * BASE,
-    'P': 0.6 * BASE,
-    'p': -0.6 * BASE,
+    'P': 1 * BASE,
+    'p': -1 * BASE,
     ' ': 0
 }
 

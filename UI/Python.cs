@@ -20,9 +20,9 @@ namespace UI
 
         public void Start()
         {
-            string python = "python.exe";
+            string python = "\"C:\\Program Files\\Python36\\python.exe\"";
             string folder = AppDomain.CurrentDomain.BaseDirectory;
-            folder = Directory.GetParent(python).Parent.Parent.Parent.FullName;
+            folder = Directory.GetParent(folder).Parent.Parent.Parent.FullName;
             folder = Path.Combine(folder, "chessmodel");
             var chessmodel = Path.Combine(folder, $"main.py --output_dir {Path.Combine(folder, "output")}");
 
@@ -32,6 +32,7 @@ namespace UI
                 WindowStyle = ProcessWindowStyle.Hidden,
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,
+                WorkingDirectory = folder,
                 Arguments = chessmodel
             };
             var process = new Process
@@ -41,13 +42,23 @@ namespace UI
             process.Start();
             _writer = process.StandardInput;
             _reader = process.StandardOutput;
-            while (_reader.ReadLine() != "ready") ;
+            while (true)
+            {
+                var line = _reader.ReadLine();
+                if (null == line)
+                    continue;
+                if (line == "ready")
+                    break;
+                Debug.WriteLine(line);
+            }
         }
 
         public string Call(string command)
         {
             _writer.WriteLine(command);
-            return _reader.ReadLine();
+            var r = _reader.ReadLine();
+            Debug.WriteLine(r);
+            return r;
         }
 
         public String TransformBoard(byte[] board)
