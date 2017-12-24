@@ -1,5 +1,9 @@
 import rule
 
+
+def create_feed(model, batch_board_red_score):
+    pass
+'''
 c2i = {
     'R': 1,
     'r': -1,
@@ -17,7 +21,6 @@ c2i = {
     'p': -7,
     ' ': 0
 }
-
 
 def create_feed(model, board_with_side, scores):
     input = []
@@ -42,3 +45,4 @@ def create_feed(model, board_with_side, scores):
 
 def unfeed(scores, red):
     return [score if red else -score for score in scores]
+'''

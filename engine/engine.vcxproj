@@ -202,6 +202,7 @@
   <ItemGroup>
     <ClInclude Include="rule.hpp" />
     <ClInclude Include="search.hpp" />
+    <ClInclude Include="tdleaf_t.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

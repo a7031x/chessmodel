@@ -28,6 +28,9 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="board_queue.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="console.py">
       <SubType>Code</SubType>
     </Compile>
@@ -46,6 +49,15 @@
     </Compile>
     <Compile Include="rule.py" />
     <Compile Include="search.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="square_rule.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="tdleaf.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="trainer.py">
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>

@@ -12,6 +12,9 @@ import math
 from datetime import datetime
 import ast
 import engine as ec
+from board_queue import BoardQueue
+from tdleaf import *
+from trainer import train
 
 
 def engine_command(cmd):
@@ -56,10 +59,20 @@ def main(_):
                     print(moves[0], scores[0])
                 elif command == 'train' or command == 'default':
                     iteration = 0
+                    queue = BoardQueue
+                    training_set = []
                     while True:
-                        board = rule.initial_board()
-                        red = random.randint(0, 1) != 0
+                        board, red = queue.dequeue()
                         steps = 0
+                        score, series = tdleaf(sess, board, red)
+                        for board, red in series:
+                            queue.probable_enqueue(board, red)
+                        training_set.append((board, red, score))
+                        if len(training_set) >= 256:
+                            train(sess, model, training_set)
+                            training_set = []
+                            sv.saver.save(sess, FLAGS.output_dir, global_step=sv.global_step)
+                        '''
                         record_boards = []
                         record_scores = []
                         record_sides = []
@@ -87,6 +100,7 @@ def main(_):
                               .format(iteration, duration.seconds, steps, record_scores[-1], loss))
                         iteration += 1
                         sv.saver.save(sess, FLAGS.output_dir, global_step=sv.global_step)
+                        '''
 
 
 if __name__ == "__main__":
