@@ -5,7 +5,7 @@ from feed import *
 def predict(sess, model, batch_board_red):
     feed = create_feed(model, batch_board_red)
     scores = sess.run(model.score, feed)
-    return unfeed([red for _, red in batch_board_red], scores)
+    return unfeed(scores, [red for _, red in batch_board_red])
 
 
 def train(sess, model, batch_board_red_score):

@@ -91,7 +91,7 @@ def next_elephant_covers(board, pos):
             next.append(p)
         else:
             steps.append(p)
-    return steps, block_position, next
+    return steps, blocks, next
 
 
 def next_bishop_covers(board, pos):
@@ -104,7 +104,7 @@ def next_bishop_covers(board, pos):
             continue
         p = position_1(px+dx,py+dy)
         steps.append(p)
-    return steps,
+    return (steps,)
 
 
 def next_king_covers(board, pos):
@@ -185,7 +185,7 @@ def next_pawn_covers(board, pos):
             continue
         p = position_1(px+dx, py+dy)
         steps.append(p)
-    return steps,
+    return (steps,)
 
 
 next_covers = {

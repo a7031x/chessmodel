@@ -39,7 +39,7 @@ def create_feed_row(row, mlen):
 
 def create_feed_from_map(model, maps):
     feed_lens = [[len(row) for row in map] for map in maps]
-    mlen = max([max(x) for x in lens])
+    mlen = max([max(x) for x in feed_lens])
     feed_maps = []
     for map in maps:
         feed_map = []
@@ -70,7 +70,7 @@ def create_train_feed(model, batch_board_red_score):
 
 
 def unfeed(batch_score, batch_red):
-    return [score if red else -score for score in batch_score]
+    return [score if red else -score for score, red in zip(batch_score, batch_red)]
 
 '''
 c2i = {

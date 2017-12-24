@@ -24,11 +24,20 @@ def tdleaf(sess, model, initial_board, red, lamb=0.7, depth=12):
     return total_score, [(board, red) for board, red, _ in series]
     
 
+def next_boards(board, red):
+    moves = rule.next_steps(board, red)
+    return [rule.next_board(board, move) for move in moves]
+
+
 def evaluate(sess, model, board, red):
     return batch_evaluate(sess, model, [board], red)
 
 
 def batch_evaluate(sess, model, boards, red):
+    for board in boards:
+        score = rule.basic_score(board)
+        if abs(score) > rule.GAMEOVER_THRESHOLD:
+            return score if red else -score
     batch_board_red = [(board, red) for board in boards]
     scores = predict(sess, model, batch_board_red)
     return scores
