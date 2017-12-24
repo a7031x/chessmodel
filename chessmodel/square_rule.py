@@ -3,7 +3,7 @@ from rule import *
 OCCUPY = 0
 
 def square_map(board):
-    map = [[]] * 90
+    map = [[] for _ in range(90)]
     for i in range(90):
         chess = board[i]
         if side(chess) == 0:

@@ -47,6 +47,11 @@ def side(chess):
     else: return -1
 
 
+def gameover_position(board):
+    score = basic_score(board)
+    return abs(score) >= GAMEOVER_THRESHOLD
+
+
 def next_rider_steps(board, pos):
     steps = []
     px, py = position_2(pos)

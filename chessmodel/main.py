@@ -58,50 +58,37 @@ def main(_):
                     moves, scores, _ = search(board, red, 5)
                     print(moves[0], scores[0])
                 elif command == 'train' or command == 'default':
-                    iteration = 0
-                    queue = BoardQueue()
-                    training_set = []
+                    run_train(sess, model)
+                    #sv.saver.save(sess, FLAGS.output_dir, global_step=sv.global_step)
+                    '''
+                    record_boards = []
+                    record_scores = []
+                    record_sides = []
+                    start_time = datetime.utcnow()
                     while True:
-                        board, red = queue.dequeue()
-                        steps = 0
-                        score, series = tdleaf(sess, model, board, red)
-                        for board, red in series:
-                            queue.probable_enqueue(board, red)
-                        training_set.append((board, red, score))
-                        if len(training_set) >= 256:
-                            loss = train(sess, model, training_set)
-                            training_set = []
-                            print('loss: {}'.format(loss))
-                            #sv.saver.save(sess, FLAGS.output_dir, global_step=sv.global_step)
-                        '''
-                        record_boards = []
-                        record_scores = []
-                        record_sides = []
-                        start_time = datetime.utcnow()
-                        while True:
-                            moves, scores, boards = search(board, red, 5)
-                            hash_hit, hash_size = engine_command('hash_counter')
-                            score = scores[0]
-                            record_boards.append(board)
-                            record_scores.append(score)
-                            record_sides.append(red)
-                            steps += 1
-                            if abs(score) >= rule.GAMEOVER_THRESHOLD or steps >= 200:
-                                break
-                            if steps % 20 == 0:
-                                print('step {}, score {}, hash: {}/{}'.format(steps, score, hash_hit, hash_size))
-                            board = random.sample(boards[0:(3 if steps > 1 else len(boards))], 1)[0]
-                            red = not red
-                        end_time = datetime.utcnow()
-                        feed = create_feed(model, [(board, red) for board, red in zip(record_boards, record_sides)], record_scores)
-                        _, total_loss = model.train(sess, feed)
-                        loss = math.sqrt(total_loss / steps)
-                        duration = end_time - start_time
-                        print('iteration: {}, elapsed: {}, steps: {}, score: {}, loss: {:.2f}'
-                              .format(iteration, duration.seconds, steps, record_scores[-1], loss))
-                        iteration += 1
-                        sv.saver.save(sess, FLAGS.output_dir, global_step=sv.global_step)
-                        '''
+                        moves, scores, boards = search(board, red, 5)
+                        hash_hit, hash_size = engine_command('hash_counter')
+                        score = scores[0]
+                        record_boards.append(board)
+                        record_scores.append(score)
+                        record_sides.append(red)
+                        steps += 1
+                        if abs(score) >= rule.GAMEOVER_THRESHOLD or steps >= 200:
+                            break
+                        if steps % 20 == 0:
+                            print('step {}, score {}, hash: {}/{}'.format(steps, score, hash_hit, hash_size))
+                        board = random.sample(boards[0:(3 if steps > 1 else len(boards))], 1)[0]
+                        red = not red
+                    end_time = datetime.utcnow()
+                    feed = create_feed(model, [(board, red) for board, red in zip(record_boards, record_sides)], record_scores)
+                    _, total_loss = model.train(sess, feed)
+                    loss = math.sqrt(total_loss / steps)
+                    duration = end_time - start_time
+                    print('iteration: {}, elapsed: {}, steps: {}, score: {}, loss: {:.2f}'
+                            .format(iteration, duration.seconds, steps, record_scores[-1], loss))
+                    iteration += 1
+                    sv.saver.save(sess, FLAGS.output_dir, global_step=sv.global_step)
+                    '''
 
 
 if __name__ == "__main__":
