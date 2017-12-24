@@ -12,11 +12,11 @@ class BoardQueue:
     def enqueue(self, board, red):
         if self.size() >= MAX_QUEUE_LENGTH:
             return
-        if board in [x for x, y in self.queue if y == red]:
+        if board not in [x for x, y in self.queue if y == red]:
             self.queue.append((board, red))
 
 
-    def probable_enqueue(self, board, red, prob=0.2):
+    def probable_enqueue(self, board, red, prob=0.1):
         m = 10000
         if random.randint(0, m) < m * prob:
             self.enqueue(board, red)

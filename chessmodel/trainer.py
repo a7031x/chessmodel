@@ -18,8 +18,11 @@ def predict(sess, model, batch_board_red):
 def train(sess, model, batch_board_red_score):
     feed = create_train_feed(model, batch_board_red_score)
     score, loss, _ = sess.run([model.score, model.loss, model.optimizer], feed)
-#    print('score: ', unfeed(score, [red for _, red, _ in batch_board_red_score]))
-#    print('label: ', [x for _, _, x in batch_board_red_score])
+    score = unfeed(score, [red for _, red, _ in batch_board_red_score])
+    label = [x for _, _, x in batch_board_red_score]
+    print('score: ', [int(x) for x in score])
+    print('label: ', [int(x) for x in label])
+    print('signc: ', sum([1 if (x < 0) == (y < 0) else 0 for x, y in zip(score, label)]))
     return loss
 
 
@@ -35,11 +38,11 @@ def run_train(sess, model):
             if not rule.gameover_position(b):
                 queue.probable_enqueue(b, r)
         training_set.append((board, red, score))
-        if len(training_set) >= 10:
+        if len(training_set) >= 100:
             loss = train(sess, model, training_set)
             loss = np.sqrt(max(loss, 0))
             training_set = []
-            print('depth: {}, loss: {}'.format(len(series), loss))
+            print('depth: {}, loss: {:.4f}'.format(len(series), loss))
 
 
 if __name__ == '__main__':
