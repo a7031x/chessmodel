@@ -13,68 +13,60 @@ NUMBER_LAYERS = 2
 
 class Model:
     def __init__(self):
-        input = tf.placeholder(tf.float32, shape=[None, 90], name='input')
-        label = tf.placeholder(tf.float32, shape=[None], name='label')
-        score = self.calc_score(input)
-        loss = self.calc_loss(score, label)
-        optimizer = self.create_optimizer(loss)
-
-        self.input = input
-        self.label = label
-        self.score = score
-        self.loss = loss
-        self.optimizer = optimizer
+        self.create_input()
+        self.create_score()
 
 
-    def conv_layer(self, input, weight, bias, name):
-        conv = tf.nn.conv2d(input, weight, [1, 1, 1, 1], 'VALID')
-        r = tf.nn.bias_add(conv, bias)
-        r = tf.nn.relu(r)
-        tf.identity(r, name)
-        return r
+    def create_input(self):
+        with tf.name_scope('input'):
+            self.input_square = tf.placeholder(tf.int32, shape=[None, 90, None, 2], name='input_square')
+            self.input_length = tf.placeholder(tf.int32, shape=[None, 90], name='input_length')
+            self.input_score = tf.placeholder(tf.float32, shape=[None], name='input_score')
 
 
-    def calc_score(self, input):
+    def create_score(self):
         with tf.name_scope('score'):
-            board = tf.reshape(input, [-1, 9, 10, 1], 'board')
-            w_conv1 = tf.get_variable('w_conv1', [7, 8, 1, 32], tf.float32)
-            b_conv1 = tf.get_variable('b_conv1', [32], tf.float32)
-            output = self.conv_layer(board, w_conv1, b_conv1, 'conv1')
-
-            w_conv2 = tf.get_variable('w_conv2', [2, 2, 32, 64], tf.float32)
-            b_conv2 = tf.get_variable('b_conv2', [64], tf.float32)
-            output = self.conv_layer(output, w_conv2, b_conv2, name='conv2')
-
-            output = tf.reshape(output, [-1, 2*2*64])
-
-            w_feature = tf.get_variable('w_feature', [2*2*64, 1024], tf.float32)
-            b_feature = tf.get_variable('b_feature', [1024], tf.float32)
-            output = tf.matmul(output, w_feature) + b_feature
-            feature = tf.identity(output, 'feature')
-       #     feature = tf.nn.dropout(feature, 0.5)
-
-            w_out = tf.get_variable('w_out', [1024, 1], tf.float32)
-            b_out = tf.get_variable('b_out', [1], tf.float32)
-            out = tf.matmul(feature, w_out) + b_out
-
-            score = tf.reshape(out, [-1], 'score')
-            return score
+            embedding = tf.get_variable('embedding', [14, 3, EMBEDDING_SIZE], tf.float32)
+            zero = tf.zeros([1, 3, EMBEDDING_SIZE])
+            combined_embedding = tf.concat([embedding, zero], axis=0)
+            #embed = tf.gather_nd(combined_embedding, self.input_square)#[None, 90, EMBEDDING_SIZE]
+            embed = tf.gather(combined_embedding, self.input_square)#[None, 90, None, EMBEDDING_SIZE]
+            reduced_embed = tf.reduce_sum(embed, axis=2)#[None, 90, EMBEDDING_SIZE]
+            flattened = tf.reshape(reduced_embed, [-1, 90 * EMBEDDING_SIZE])
+            layer0 = self.transform(0, flattened, 512)
+            layer1 = self.transform(1, layer0, 256)
+            layer2 = self.transform(2, layer1, 128)
+            output = self.transform(3, layer2, 64, 'tanh')#[None, 64]
+            self.score = tf.reduce_sum(output, -1)#[None]
 
 
-    def calc_loss(self, score, label):
+    def create_loss(self):
         with tf.name_scope('loss'):
-            loss = tf.losses.mean_squared_error(label, score)
-            return loss
-          #  return tf.reduce_sum(loss)
+            loss = tf.nn.l2_loss(self.score - self.input_score)
+            loss = tf.reduce_sum(loss)
+            self.loss = loss
 
 
-    def create_optimizer(self, loss):
+    def create_optimizer(self):
         with tf.name_scope('optimizer'):
             tvars = tf.trainable_variables()
-            grads, _ = tf.clip_by_global_norm(tf.gradients(loss, tvars), 5)
-            optimizer = tf.train.AdamOptimizer(0.001)
+            grads, _ = tf.clip_by_global_norm(tf.gradients(self.loss, tvars), 5)
+            optimizer = tf.train.AdamOptimizer(1)
             train_optimizer = optimizer.apply_gradients(zip(grads, tvars), global_step=tf.contrib.framework.get_or_create_global_step())
-            return train_optimizer
+            self.optimizer = train_optimizer
+
+
+    def transform(self, layerid, input, output_dim, activation='relu'):
+        input_dim = input.shape[-1]
+        weight = tf.get_variable('weight{}'.format(layerid), [input_dim, output_dim], tf.float32)
+        bias = tf.get_variable('bias{}'.format(layerid), [output_dim], tf.float32)
+        output = tf.matmul(input, weight) + bias
+        if activation == 'relu':
+            return tf.nn.relu(output)
+        elif activation == 'tanh':
+            return tf.nn.tanh(output)
+        else:
+            return output
 
 
     def train(self, sess, feed):

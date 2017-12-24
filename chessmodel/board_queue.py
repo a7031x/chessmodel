@@ -1,7 +1,7 @@
 import rule
 import random
 
-MAX_QUEUE_LENGTH = 50
+MAX_QUEUE_LENGTH = 100
 
 
 class BoardQueue:
@@ -25,7 +25,7 @@ class BoardQueue:
         if self.size() == 0:
             return rule.initial_board(), 1
         item = random.sample(self.queue, 1)[0]
-        return item.board, item.red
+        return item
 
 
     def size(self):
