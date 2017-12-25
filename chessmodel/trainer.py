@@ -26,7 +26,7 @@ def train(sess, model, batch_board_red_score):
     return loss
 
 
-def run_train(sess, model):
+def run_train(sess, model, sv):
     iteration = 0
     queue = BoardQueue()
     training_set = []
@@ -38,11 +38,12 @@ def run_train(sess, model):
             if not rule.gameover_position(b):
                 queue.probable_enqueue(b, r)
         training_set.append((board, red, score))
-        if len(training_set) >= 100:
+        if len(training_set) >= 20:
             loss = train(sess, model, training_set)
             loss = np.sqrt(max(loss, 0))
             training_set = []
             print('depth: {}, loss: {:.4f}'.format(len(series), loss))
+            sv.saver.save(sess, FLAGS.output_dir, global_step=sv.global_step)
 
 
 if __name__ == '__main__':
@@ -51,4 +52,4 @@ if __name__ == '__main__':
         model = Model()
     sv = tf.train.Supervisor(logdir=FLAGS.output_dir)
     with sv.managed_session() as sess:
-        run_train(sess, model)
+        run_train(sess, model, sv)

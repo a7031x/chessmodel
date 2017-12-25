@@ -28,8 +28,8 @@ class Model:
 
     def create_score(self):
         with tf.name_scope('score'):
-            embedding = tf.get_variable('embedding', [14, 3, EMBEDDING_SIZE], tf.float32)
-            zero = tf.zeros([1, 3, EMBEDDING_SIZE])
+            embedding = tf.get_variable('embedding', [14, 4, EMBEDDING_SIZE], tf.float32)
+            zero = tf.zeros([1, 4, EMBEDDING_SIZE])
             combined_embedding = tf.concat([embedding, zero], axis=0)
             #embed = tf.gather_nd(combined_embedding, self.input_square)#[None, 90, EMBEDDING_SIZE]
             embed = tf.gather_nd(combined_embedding, self.input_square)#[None, 90, None, EMBEDDING_SIZE]

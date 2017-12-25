@@ -58,7 +58,7 @@ def main(_):
                     moves, scores, _ = search(board, red, 5)
                     print(moves[0], scores[0])
                 elif command == 'train' or command == 'default':
-                    run_train(sess, model)
+                    run_train(sess, model, sv)
                     #sv.saver.save(sess, FLAGS.output_dir, global_step=sv.global_step)
                     '''
                     record_boards = []
