@@ -1,4 +1,5 @@
 import rule
+import random
 from trainer import *
 
 def tdleaf(sess, model, initial_board, red, lamb=0.7, depth=12):
@@ -52,7 +53,8 @@ def evaluate(sess, model, board, red):
 
 def batch_evaluate(sess, model, boards, red):
     batch_board_red = [(board, red) for board in boards]
-    scores = predict(sess, model, batch_board_red)
+ #   scores = predict(sess, model, batch_board_red)
+    scores = [random.randint(-1000, 1000) for _ in boards]
     return scores
 
 
