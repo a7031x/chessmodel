@@ -41,7 +41,7 @@ def run_train(sess, model, sv):
             if not rule.gameover_position(b):
                 queue.probable_enqueue(b, r)
         training_set.append((board, red, score))
-        if len(training_set) >= 20:
+        if len(training_set) >= 100:
             loss = train(sess, model, training_set)
             loss = np.sqrt(max(loss, 0))
             training_set = []
