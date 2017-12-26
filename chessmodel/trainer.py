@@ -33,13 +33,13 @@ def run_train(sess, model, sv):
     training_set = []
     while True:
         board, red = queue.dequeue()
-        score, series = tdleaf(sess, model, board, red)
-        for b, r in series:
-            if not rule.gameover_position(b):
-                queue.probable_enqueue(b, r)
         score = queryscore(board, red)
         if score is None:
             continue
+        _, series = tdleaf(sess, model, board, red)
+        for b, r in series:
+            if not rule.gameover_position(b):
+                queue.probable_enqueue(b, r)
         training_set.append((board, red, score))
         if len(training_set) >= 20:
             loss = train(sess, model, training_set)
