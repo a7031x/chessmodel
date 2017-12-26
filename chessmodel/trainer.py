@@ -21,8 +21,10 @@ def train(sess, model, batch_board_red_score):
     score, loss, _ = sess.run([model.score, model.loss, model.optimizer], feed)
     score = unfeed(score, [red for _, red, _ in batch_board_red_score])
     label = [x for _, _, x in batch_board_red_score]
-    print('score: ', [int(x) for x in score])
-    print('label: ', [int(x) for x in label])
+  #  print('score: ', [int(x) for x in score])
+  #  print('label: ', [int(x) for x in label])
+    print('SCORE/LABEL')
+    print(list(zip([int(x) for x in score], [int(x) for x in label])))
     print('signc: ', sum([1 if (x < 0) == (y < 0) else 0 for x, y in zip(score, label)]))
     return loss
 
