@@ -35,11 +35,11 @@ class Model:
             embed = tf.gather_nd(combined_embedding, self.input_square)#[None, 90, None, EMBEDDING_SIZE]
             reduced_embed = tf.reduce_sum(embed, axis=2)#[None, 90, EMBEDDING_SIZE]
             flattened = tf.reshape(reduced_embed, [-1, 90 * EMBEDDING_SIZE])
-        #    layer0 = self.transform(0, flattened, 512, 'sigmoid')
-        #    layer1 = self.transform(1, layer0, 256, 'sigmoid')
-        #    layer2 = self.transform(2, layer1, 128, 'tanh')
-        #    feature = self.transform(3, layer2, 64, None)#[None, 64]
-            feature = self.transform(0, flattened, 512, None)
+            layer0 = self.transform(0, flattened, 512, 'relu')
+            layer1 = self.transform(1, layer0, 256, 'relu')
+            layer2 = self.transform(2, layer1, 128, 'relu')
+            feature = self.transform(3, layer2, 64, None)#[None, 64]
+           # feature = self.transform(0, flattened, 512, None)
             self.score = tf.reduce_sum(feature, -1)#[None]
 
 

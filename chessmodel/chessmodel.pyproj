@@ -31,6 +31,9 @@
     <Compile Include="board_queue.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="chessdb.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="console.py">
       <SubType>Code</SubType>
     </Compile>

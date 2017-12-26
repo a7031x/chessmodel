@@ -216,7 +216,7 @@ def basic_score(board):
 
 
 def initial_board():
-    return 'rhebkbehr##########c#####c#p#p#p#p#p##################P#P#P#P#P#C#####C##########RHEBKBEHR'.replace('#', ' ')
+    return 'rnbakabnr##########c#####c#p#p#p#p#p##################P#P#P#P#P#C#####C##########RNBAKABNR'.replace('#', ' ')
 
 
 def next_board(board, move):
@@ -226,16 +226,16 @@ def next_board(board, move):
     r[f] = ' '
     return ''.join(r)
 
-
+'rnbakabnr'
 score_map = {
     'R': 10 * BASE,
     'r': -10 * BASE,
-    'H': 4 * BASE,
-    'h': -4 * BASE,
-    'E': 1 * BASE,
-    'e': -1 * BASE,
+    'N': 4 * BASE,
+    'n': -4 * BASE,
     'B': 1 * BASE,
     'b': -1 * BASE,
+    'A': 1 * BASE,
+    'a': -1 * BASE,
     'K': 1000 * BASE,
     'k': -1000 * BASE,
     'C': 4 * BASE,
@@ -248,12 +248,12 @@ score_map = {
 next_chess_steps = {
     'R': next_rider_steps,
     'r': next_rider_steps,
-    'H': next_horse_steps,
-    'h': next_horse_steps,
-    'E': next_elephant_steps,
-    'e': next_elephant_steps,
-    'B': next_bishop_steps,
-    'b': next_bishop_steps,
+    'N': next_horse_steps,
+    'n': next_horse_steps,
+    'B': next_elephant_steps,
+    'b': next_elephant_steps,
+    'A': next_bishop_steps,
+    'a': next_bishop_steps,
     'K': next_king_steps,
     'k': next_king_steps,
     'C': next_cannon_steps,

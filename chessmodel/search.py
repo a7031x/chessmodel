@@ -143,7 +143,7 @@ class SearchEngine:
 
 if __name__ == "__main__":
     engine = SearchEngine()
-    board = '###bkb################e######p#p#c#p######################c######R#E###E####B#####r##KB###'
+    board = '###aka################b######p#p#c#p######################c######R#B###B####A#####r##KA###'
 #    board = '#he#kbehr####b#############p#p#pCp#p###P#####P############cc##P#####C####r#######RHEBKBEHR'
 #    board = 'rhebkbehr##################p#p#p#p#p#########P#c##########P#P#P##C####C#Rc#########EBKBEHR'
     red = True
