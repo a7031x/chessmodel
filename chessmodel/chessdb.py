@@ -1,6 +1,8 @@
 import requests
 import urllib
 
+cache = {}
+
 def board_to_fen(board, red):
     rows = []
     for row in range(10):
@@ -26,6 +28,14 @@ def queryscore(board, red):
 
 
 def queryscore_fen(fen):
+    if fen in cache:
+        return cache[fen]
+    score = queryscore_fen_imply(fen)
+    cache[fen] = score
+    return score
+
+
+def queryscore_fen_imply(fen):
     query = urllib.parse.quote(fen)
     r = requests.get('http://api.chessdb.cn:81/chessdb.php?action=queryscore&board=' + query).text
     if 'unknown' in r:
