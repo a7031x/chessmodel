@@ -123,6 +123,23 @@ def is_conclude(conn, fen):
     else:
         return rows[0][0] == 1
 
+@asyncio.coroutine
+def process_move(board, red, move):
+    move, score, _, _ = move.split(',')
+    move = move.split(':')[1]
+    score = score.split(':')[1]
+    movefrom = ord(move[0]) - ord('a') + (9 - int(move[1])) * 9
+    moveto = ord(move[2]) - ord('a') + (9 - int(move[3])) * 9
+    next_board = [c for c in board]
+    next_board[moveto] = next_board[movefrom]
+    next_board[movefrom] = ' '
+    next_fen = board_to_fen(next_board, not red)
+    if '??' == score:
+        score = queryscore_fen(next_fen)
+    else:
+        score = int(score)
+    return next_fen, score
+
 
 def queryboards_fen_imply(fen):
     query = urllib.parse.quote(fen)
@@ -142,22 +159,16 @@ def queryboards_fen_imply(fen):
     board, red = fen_to_board(fen)
     boards = []
     scores = []
+    tasks = []
+    #loop = asyncio.get_event_loop()
     for move in movelist:
-        move, score, _, _ = move.split(',')
-        move = move.split(':')[1]
-        score = score.split(':')[1]
-        movefrom = ord(move[0]) - ord('a') + (9 - int(move[1])) * 9
-        moveto = ord(move[2]) - ord('a') + (9 - int(move[3])) * 9
-        next_board = [c for c in board]
-        next_board[moveto] = next_board[movefrom]
-        next_board[movefrom] = ' '
-        next_fen = board_to_fen(next_board, not red)
-        if '??' == score:
-            score = queryscore_fen(next_fen)
-            if score is None:
-                continue
-        else:
-            score = int(score)
+        task = process_move(board, red, move)
+        tasks.append(task)
+    loop = asyncio.get_event_loop()
+    results = loop.run_until_complete(asyncio.gather(*tasks))
+    for next_fen, score in results:
+        if score is None:
+            continue
         boards.append(next_fen)
         scores.append(score)
     return boards, scores
