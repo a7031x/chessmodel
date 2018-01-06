@@ -7,8 +7,8 @@ from options import FLAGS
 
 #https://www.youtube.com/embed/bJfqn4Ysvsk
 
-EMBEDDING_SIZE = 256
-HIDDEN_SIZE = 256
+EMBEDDING_SIZE = 64
+HIDDEN_SIZE = 64
 
 class Model:
     def __init__(self):
@@ -32,12 +32,12 @@ class Model:
             combined_embedding = tf.concat([embedding, zero], axis=0)
             #embed = tf.gather_nd(combined_embedding, self.input_square)#[None, 90, EMBEDDING_SIZE]
             embed = tf.gather_nd(combined_embedding, self.input_square)#[None, 90, None, EMBEDDING_SIZE]
-            reduced_embed = tf.reduce_prod(embed, axis=2)#[None, 90, EMBEDDING_SIZE]
+            reduced_embed = tf.reduce_prod(embed, axis=2) + tf.reduce_sum(embed, axis=2)#[None, 90, EMBEDDING_SIZE]
             flattened = tf.reshape(reduced_embed, [-1, 90 * EMBEDDING_SIZE])
             layer0 = self.transform(0, flattened, 512, 'relu')
-            layer1 = self.transform(1, layer0, 256, 'relu')
+            layer1 = self.transform(1, layer0, 256, 'tanh')
             layer2 = self.transform(2, layer1, 128, 'relu')
-            layer3 = self.transform(3, layer2, 64, None)#[None, 64]
+            layer3 = self.transform(3, layer2, 64, 'tanh')#[None, 64]
             feature = self.transform(4, layer3, 32, None)#[None, 64]
            # feature = self.transform(0, flattened, 512, None)
             self.score = tf.reduce_sum(feature, -1)#[None]
@@ -53,7 +53,7 @@ class Model:
         with tf.name_scope('optimizer'):
             tvars = tf.trainable_variables()
             grads, _ = tf.clip_by_global_norm(tf.gradients(self.loss, tvars), 5)
-            optimizer = tf.train.AdamOptimizer(0.01)
+            optimizer = tf.train.AdamOptimizer(0.001)
             train_optimizer = optimizer.apply_gradients(zip(grads, tvars), global_step=tf.train.get_or_create_global_step())
             self.optimizer = train_optimizer
 
