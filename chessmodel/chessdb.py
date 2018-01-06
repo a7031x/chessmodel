@@ -1,6 +1,7 @@
 import requests
 import urllib
 import sqlite3
+import asyncio
 
 cache = {}
 
@@ -45,26 +46,26 @@ def queryscore(board, red):
 def queryscore_fen(fen):
     if fen in cache:
         return cache[fen]
-    while True:
-        try:
-            score = queryscore_fen_imply(fen)
-            cache[fen] = score
-            return score
-        except:
-            print('retrying...')
-            continue
+    score = queryscore_fen_imply(fen)
+    cache[fen] = score
+    return score
+
 
 
 def queryscore_fen_imply(fen):
     query = urllib.parse.quote(fen)
-    r = requests.get('http://api.chessdb.cn:81/chessdb.php?action=queryscore&board=' + query, timeout=1).text
-    if 'unknown' in r:
-        return None
-    if 'eval' not in r:
-        print('INVALID RESPONSE:', fen, r)
-        return None
-    score = int(r.strip('\x00').split(':')[1])
-    return score
+    while True:
+        try:
+            r = requests.get('http://api.chessdb.cn:81/chessdb.php?action=queryscore&board=' + query, timeout=1).text
+            if 'unknown' in r:
+                return None
+            if 'eval' not in r:
+                print('INVALID RESPONSE:', fen, r)
+                return None
+            score = int(r.strip('\x00').split(':')[1])
+            return score
+        except:
+            print('retrying...')
 
 
 def read_database():
