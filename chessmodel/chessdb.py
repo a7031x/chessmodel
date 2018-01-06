@@ -67,6 +67,17 @@ def queryscore_fen_imply(fen):
     return score
 
 
+def read_database():
+    conn = sqlite3.connect('chess.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT board, score FROM board_score')
+    rows = cursor.fetchall()
+    for row in rows:
+        board, red = fen_to_board(row[0])
+        score = row[1]
+        yield board, red, score
+
+
 def download_database():
     conn = sqlite3.connect('chess.db')
     fen = 'rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w'

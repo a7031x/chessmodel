@@ -7,9 +7,8 @@ from options import FLAGS
 
 #https://www.youtube.com/embed/bJfqn4Ysvsk
 
-EMBEDDING_SIZE = 128
+EMBEDDING_SIZE = 256
 HIDDEN_SIZE = 256
-NUMBER_LAYERS = 2
 
 class Model:
     def __init__(self):
@@ -33,12 +32,13 @@ class Model:
             combined_embedding = tf.concat([embedding, zero], axis=0)
             #embed = tf.gather_nd(combined_embedding, self.input_square)#[None, 90, EMBEDDING_SIZE]
             embed = tf.gather_nd(combined_embedding, self.input_square)#[None, 90, None, EMBEDDING_SIZE]
-            reduced_embed = tf.reduce_sum(embed, axis=2)#[None, 90, EMBEDDING_SIZE]
+            reduced_embed = tf.reduce_prod(embed, axis=2)#[None, 90, EMBEDDING_SIZE]
             flattened = tf.reshape(reduced_embed, [-1, 90 * EMBEDDING_SIZE])
             layer0 = self.transform(0, flattened, 512, 'relu')
             layer1 = self.transform(1, layer0, 256, 'relu')
             layer2 = self.transform(2, layer1, 128, 'relu')
-            feature = self.transform(3, layer2, 64, None)#[None, 64]
+            layer3 = self.transform(3, layer2, 64, None)#[None, 64]
+            feature = self.transform(4, layer3, 32, None)#[None, 64]
            # feature = self.transform(0, flattened, 512, None)
             self.score = tf.reduce_sum(feature, -1)#[None]
 
