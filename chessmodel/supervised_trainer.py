@@ -43,6 +43,7 @@ def run_epoch(taskname, sess, model, dataset, method):
 def run_train(sess, model, sv):
     iteration = 0
     dataset = list(read_database())
+    dataset = [(board, red, score) for board, red, score in dataset if abs(score) < 5000]
     random.seed(1)
     random.shuffle(dataset)
     training_size = int(0.95 * len(dataset))
