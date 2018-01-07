@@ -84,7 +84,7 @@ def download_database():
     fen = 'rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w'
     try:
         c = conn.cursor()
-        c.execute('''CREATE TABLE board_score (board text primary key, score integer, conclude integer default 0)''')
+        c.execute('''CREATE TABLE board_score (board text primary key, score integer, score2 integer, conclude integer default 0)''')
         c.execute('''INSERT INTO board_score (board, score) VALUES ('{}', {})'''.format(fen, 15))
         conn.commit()
     except:
@@ -105,12 +105,11 @@ def update_database(conn, queue, evaluating):
             continue
         queue.append((fen, None))
         evaluating.add(fen)
-        next_boards, scores = queryboards_fen_imply(fen)
-        for next_board, score in zip(next_boards, scores):
-            if next_board in evaluating or is_conclude(conn, next_board):
-                continue
-            cursor.execute('''INSERT OR IGNORE INTO board_score (board, score) VALUES ('{}', {})'''.format(next_board, score))
-            queue.append((next_board, score))
+        next_boards, scores, scores2 = queryboards_fen_imply(fen)
+        values = [(f, s1, s2) for f, s1, s2 in zip(next_boards, scores, scores2) if f not in evaluating and not is_conclude(conn, f)]
+        cursor.executemany('INSERT OR IGNORE INTO board_score (board, score, score2) VALUES(?,?,?)', values)
+        for f, s1, s2 in values:
+            queue.append((f, s1))
         conn.commit()
 
 
@@ -135,10 +134,14 @@ def process_move(board, red, move):
     next_board[movefrom] = ' '
     next_fen = board_to_fen(next_board, not red)
     if '??' == score:
-        score = queryscore_fen(next_fen)
+        score2 = None
     else:
-        score = int(score)
-    return next_fen, score
+        score2 = int(score)
+        score2 = score2 if red else -score2
+    score = queryscore_fen(next_fen)
+    if score is not None and red:
+        score = -score
+    return next_fen, score, score2
 
 
 def queryboards_fen_imply(fen):
@@ -166,12 +169,14 @@ def queryboards_fen_imply(fen):
         tasks.append(task)
     loop = asyncio.get_event_loop()
     results = loop.run_until_complete(asyncio.gather(*tasks))
-    for next_fen, score in results:
+    scores2 = []
+    for next_fen, score, score2 in results:
         if score is None:
             continue
         boards.append(next_fen)
         scores.append(score)
-    return boards, scores
+        scores2.append(score2)
+    return boards, scores, scores2
 
 
 if __name__ == '__main__':
