@@ -20,7 +20,7 @@ def train(sess, model, batch_board_red_score):
 
 
 def run_epoch(taskname, sess, model, dataset, method):
-    batch_size = 256
+    batch_size = 128
     total_loss = 0
     total = 0
     count = 0
@@ -29,14 +29,14 @@ def run_epoch(taskname, sess, model, dataset, method):
         size = min(len(dataset) - cursor, batch_size)
         batch = dataset[cursor:(cursor+size)]
         loss = method(sess, model, batch)
-        total_loss += np.sqrt(loss)
+        total_loss += loss
         count += 1
         total += size
         et = time()
         if et - st >= 5:
-            print('  ', taskname, '{:.2f}%'.format(total / len(dataset) * 100), 'loss: {:.4f}'.format(total_loss / count))
+            print('  ', taskname, '{:.2f}%'.format(total / len(dataset) * 100), 'loss: {:.4f}'.format(np.sqrt(total_loss / total)))
             st = et
-    print('finish', taskname, 'loss: {:.4f}'.format(total_loss / count))
+    print('finish', taskname, 'loss: {:.4f}'.format(np.sqrt(total_loss / total)))
     return total_loss / count
 
 
@@ -46,7 +46,7 @@ def run_train(sess, model, sv):
     dataset = [(board, red, score) for board, red, score in dataset if abs(score) < 5000]
     random.seed(1)
     random.shuffle(dataset)
-    training_size = int(0.95 * len(dataset))
+    training_size = int(0.98 * len(dataset))
     training_set = dataset[:training_size]
     validation_set = dataset[training_size:]
     print('training set:', training_size, 'validation set:', len(validation_set))

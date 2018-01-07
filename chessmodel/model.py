@@ -7,8 +7,8 @@ from options import FLAGS
 
 #https://www.youtube.com/embed/bJfqn4Ysvsk
 
-EMBEDDING_SIZE = 64
-HIDDEN_SIZE = 64
+EMBEDDING_SIZE = 8
+HIDDEN_SIZE = 8
 
 class Model:
     def __init__(self):
@@ -34,18 +34,19 @@ class Model:
             embed = tf.gather_nd(combined_embedding, self.input_square)#[None, 90, None, EMBEDDING_SIZE]
             reduced_embed = tf.reduce_prod(embed, axis=2) + tf.reduce_sum(embed, axis=2)#[None, 90, EMBEDDING_SIZE]
             flattened = tf.reshape(reduced_embed, [-1, 90 * EMBEDDING_SIZE])
-            layer0 = self.transform(0, flattened, 512, 'relu')
-            layer1 = self.transform(1, layer0, 256, 'tanh')
-            layer2 = self.transform(2, layer1, 128, 'relu')
-            layer3 = self.transform(3, layer2, 64, 'tanh')#[None, 64]
-            feature = self.transform(4, layer3, 32, None)#[None, 64]
+            layer0 = self.transform(0, flattened, 128, 'tanh')
+            layer1 = self.transform(1, layer0, 64, 'tanh')
+            layer2 = self.transform(2, layer1, 32, 'tanh')
+            layer3 = self.transform(3, layer2, 16, 'None')
+            layer4 = self.transform(30, layer3, 8, 'relu')#[None, 64]
+            #feature = self.transform(40, layer3, 32, 'None')#[None, 64]
            # feature = self.transform(0, flattened, 512, None)
-            self.score = tf.reduce_sum(feature, -1)#[None]
+            self.score = tf.reduce_sum(layer3, -1)#[None]
 
 
     def create_loss(self):
         with tf.name_scope('loss'):
-            loss = tf.nn.l2_loss(self.score - self.input_score) * 2 / tf.cast(tf.shape(self.input_square)[0], tf.float32)
+            loss = tf.nn.l2_loss(self.score - self.input_score) * 2
             self.loss = loss
 
 

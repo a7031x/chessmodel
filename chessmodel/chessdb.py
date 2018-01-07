@@ -2,8 +2,12 @@ import requests
 import urllib
 import sqlite3
 import asyncio
+import random
+from time import time
 
 cache = {}
+session = requests.session()
+session.mount('http://', requests.adapters.HTTPAdapter(pool_connections=500))
 
 def board_to_fen(board, red):
     rows = []
@@ -56,7 +60,7 @@ def queryscore_fen_imply(fen):
     query = urllib.parse.quote(fen)
     while True:
         try:
-            r = requests.get('http://api.chessdb.cn:81/chessdb.php?action=queryscore&board=' + query, timeout=1).text
+            r = session.get('http://api.chessdb.cn:81/chessdb.php?action=queryscore&board=' + query, timeout=1).text
             if 'unknown' in r:
                 return None
             if 'eval' not in r:
@@ -91,28 +95,46 @@ def download_database():
         print('table already created')
     evaluating = set()
     queue = []
-    c.execute('SELECT board, expand FROM board_score')
-    for row in c.fetchall():
-        evaluating.add(row[0])
-        if row[1] == 0:
-            queue.append(row[0])
+    c.execute('SELECT board, score, expand FROM board_score')
+    for board, score, expand in c.fetchall():
+        evaluating.add(board)
+        if expand == 0:
+            #queue.append(board)
+            queue.append((board, score))
+    queue = sorted(queue, key=lambda x: abs(x[1]))
+    initial_queue_length = 10000
+    if len(queue) > initial_queue_length:
+        queue = [board for board, _ in queue[-initial_queue_length:]]
     update_database(conn, queue, evaluating)
 
 
 def update_database(conn, queue, evaluating):
     cursor = conn.cursor()
+    loop = asyncio.get_event_loop()
+    tasks = []
     while len(queue) != 0:
-        fen = queue[0]
-        queue.pop(0)
-        next_boards, scores, scores2 = queryboards_fen_imply(fen, evaluating)
-        values = list(zip(next_boards, scores, scores2))
-        cursor.executemany('INSERT INTO board_score (board, score, score2) VALUES(?,?,?)', values)
-        cursor.execute('UPDATE board_score SET expand=1 WHERE board=?', (fen,))
-        for f, s1, s2 in values:
-            queue.append(f)
-            evaluating.add(f)
+        st = time()
+        count = 0
+        abs_score = 0
+        fens = [queue.pop(random.randrange(len(queue))) for _ in range(min(len(queue), 16 - len(tasks)))]
+        for fen in fens:
+            tasks.append(queryboards_fen_imply(fen, evaluating))
+        finished, unfinished = loop.run_until_complete(asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED))
+        for task in finished:
+            fen, next_boards, scores, scores2 = task.result()
+            values = list(zip(next_boards, scores, scores2))
+            cursor.executemany('INSERT OR IGNORE INTO board_score (board, score, score2) VALUES(?,?,?)', values)
+            cursor.execute('UPDATE board_score SET expand=1 WHERE board=?', (fen,))
+            for f, s1, s2 in values:
+                if f not in evaluating:
+                    queue.append(f)
+                    evaluating.add(f)
+                    count += 1
+                    abs_score += abs(s1)
+        tasks = list(unfinished)
         conn.commit()
-        print('records', len(evaluating))
+        et = time()
+        print('records', len(evaluating), 'queue', len(queue), 'duration', et - st, 'pace', count / (et - st), 'score', abs_score / count)
 
 
 def move_to_fen(board, red, move):
@@ -149,11 +171,11 @@ def process_move(board, red, move):
     return next_fen, score, score2
 
 
-def queryboards_fen_imply(fen, evaluating=None):
+async def queryboards_fen_imply(fen, evaluating):
     query = urllib.parse.quote(fen)
     while True:
         try:
-            r = requests.get('http://api.chessdb.cn:81/chessdb.php?action=queryall&board=' + query, timeout=1).text.strip('\x00')
+            r = session.get('http://api.chessdb.cn:81/chessdb.php?action=queryall&board=' + query, timeout=1).text.strip('\x00')
             break
         except:
             print('retrying...')
@@ -168,14 +190,12 @@ def queryboards_fen_imply(fen, evaluating=None):
     boards = []
     scores = []
     tasks = []
-    #loop = asyncio.get_event_loop()
     for move in movelist:
         if evaluating is not None and move_to_fen(board, red, move) in evaluating:
             continue
         task = process_move(board, red, move)
         tasks.append(task)
-    loop = asyncio.get_event_loop()
-    results = loop.run_until_complete(asyncio.gather(*tasks))
+    results = await asyncio.gather(*tasks)
     scores2 = []
     for next_fen, score, score2 in results:
         if score is None:
@@ -183,7 +203,7 @@ def queryboards_fen_imply(fen, evaluating=None):
         boards.append(next_fen)
         scores.append(score)
         scores2.append(score2)
-    return boards, scores, scores2
+    return fen, boards, scores, scores2
 
 
 if __name__ == '__main__':
