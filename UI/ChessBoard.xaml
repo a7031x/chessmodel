@@ -3,9 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:UI"
              mc:Ignorable="d" 
-             d:DesignHeight="400" d:DesignWidth="530" MouseMove="chessBoard_MouseMove" PreviewMouseLeftButtonDown="chessBoard_PreviewMouseLeftButtonDown">
+             d:DesignHeight="400" d:DesignWidth="530" MouseMove="chessBoard_MouseMove" PreviewMouseLeftButtonDown="ChessBoard_PreviewMouseLeftButtonDown">
     <UserControl.Resources>
         <ResourceDictionary>
             <Style x:Key="{x:Type Line}" TargetType="{x:Type Line}">
@@ -25,7 +24,7 @@
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="30"/>
             </Grid.RowDefinitions>
-            <ListBox Name="moveList" Margin="10" SelectionChanged="moveList_SelectionChanged" FontSize="16"/>
+            <ListBox Name="moveList" Margin="10" SelectionChanged="MoveList_SelectionChanged" FontSize="16"/>
             <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="15, 0">
                 <Button Name="rotateBoard" Content="旋转棋盘" Click="rotateBoard_Click" Margin="0,0,0,0"/>
                 <Button Name="aiMove" Content="按建议下棋" Click="aiMove_Click" Margin="10,0,0,0"/>
@@ -34,7 +33,7 @@
         </Grid>
         <Grid Grid.Column="1" Height="400" Width="360">
             <Canvas x:Name="chessBoard" Margin="20"
-                MouseRightButtonDown="chessBoard_MouseRightButtonDown">
+                MouseRightButtonDown="ChessBoard_MouseRightButtonDown">
                 <Canvas.Background>
                     <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                         <GradientStop Color="#FFD6E0EA" Offset="0"/>

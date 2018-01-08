@@ -20,7 +20,7 @@ namespace UI
 
         public void Start()
         {
-            string python = "\"C:\\Program Files\\Python36\\python.exe\"";
+            string python = "\"C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\Python36_64\\python.exe\"";
             string folder = AppDomain.CurrentDomain.BaseDirectory;
             folder = Directory.GetParent(folder).Parent.Parent.Parent.FullName;
             folder = Path.Combine(folder, "chessmodel");
@@ -74,16 +74,16 @@ namespace UI
             switch (chess)
             {
                 case 256 - 6: return 'r';
-                case 256 - 2: return 'h';
-                case 256 - 5: return 'e';
-                case 256 - 4: return 'b';
+                case 256 - 2: return 'n';
+                case 256 - 5: return 'b';
+                case 256 - 4: return 'a';
                 case 256 - 3: return 'k';
                 case 256 - 7: return 'c';
                 case 256 - 1: return 'p';
                 case 6: return 'R';
-                case 2: return 'H';
-                case 5: return 'E';
-                case 4: return 'B';
+                case 2: return 'N';
+                case 5: return 'B';
+                case 4: return 'A';
                 case 3: return 'K';
                 case 7: return 'C';
                 case 1: return 'P';
@@ -123,7 +123,8 @@ namespace UI
             var board = TransformBoard(chessBoard);
             var command = $"advice {(red ? 1 : 0)} {board}";
             var response = Call(command);
-            var move = response.Split(new[] { '(', ')', ',', ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(int.Parse).ToArray();
+            var numbers = response.Split(new[] { '(', ')', ',', ' ' }, StringSplitOptions.RemoveEmptyEntries).ToArray();
+            var move = numbers.Select(float.Parse).Select(x => (int)x).ToArray();
             return move;
         }
 

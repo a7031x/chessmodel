@@ -2,7 +2,8 @@ import rule
 import random
 import os
 import pickle
-import engine as ec
+#import engine as ec
+from feed import create_feed, unfeed
 import ast
 
 class PerformanceCounter:
@@ -11,9 +12,11 @@ class PerformanceCounter:
 
 
 class SearchEngine:
-    def __init__(self, folder=None):
+    def __init__(self, sess, model, folder=None):
         self.folder = folder
         self.load()
+        self.sess = sess
+        self.model = model
 
 
     def save(self):
@@ -38,6 +41,13 @@ class SearchEngine:
         self.hash = {}
         self.hash_table = [self.generate_hash_board() for _ in range(90)]
         self.performance_counter = PerformanceCounter()
+
+
+    def predict(self, batch_board_red):
+        feed = create_feed(self.model, batch_board_red)
+        scores = self.sess.run(self.model.score, feed)
+        scores = unfeed(scores, [red for _, red in batch_board_red])
+        return scores
 
 
     def generate_hash_board(self):
@@ -100,7 +110,10 @@ class SearchEngine:
         moves = rule.next_steps(board, red)
         next_boards = [rule.next_board(board, move) for move in moves]
         next_scores = [rule.basic_score(b) for b in next_boards]
-        if depth == 1 or any([abs(x) >= rule.GAMEOVER_THRESHOLD for x in next_scores]):
+        gameover_state = any([abs(x) >= rule.GAMEOVER_THRESHOLD for x in next_scores])
+        if not gameover_state and depth == 1:
+            next_scores = self.predict([(b, not red) for b in next_boards])
+        if depth == 1 or gameover_state:
             best_move, best_score = max(zip(moves, next_scores), key=lambda ms: (ms[1] if red else -ms[1]))
             if depth == self.depth:
                 self.fill_moves(board, best_move, best_score, red)

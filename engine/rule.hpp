@@ -68,13 +68,13 @@ public:
 			case 'R':
 				moves = rider_steps(board, k);
 				break;
-			case 'H':
+			case 'N':
 				moves = horse_steps(board, k);
 				break;
-			case 'E':
+			case 'B':
 				moves = elephant_steps(board, k);
 				break;
-			case 'B':
+			case 'A':
 				moves = bishop_steps(board, k);
 				break;
 			case 'K':

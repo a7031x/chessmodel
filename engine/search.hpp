@@ -101,6 +101,10 @@ private:
 			next_boards.push_back(next_board);
 			next_scores.push_back(next_score);
 		}
+		if (abs(best_score) < rule_t::gameover_threshold() && depth + captured == 1)
+		{
+			next_scores = model.predict(next_boards, !red);
+		}
 		if (1 >= depth + captured || abs(best_score) >= rule_t::gameover_threshold())
 		{
 			if (abs(best_score) >= rule_t::gameover_threshold())
@@ -130,7 +134,7 @@ private:
 			auto move = moves[index];
 			int captive = matter.find(board[move.second]) != matter.end() ? 1 : 0;
 			auto next_board = next_boards[index];
-			auto next_score = deep_search(pack, org_depth, next_board, !red, depth - 1, std::min(captured + captive, 3), minscore, maxscore);
+			auto next_score = deep_search(pack, org_depth, next_board, !red, depth - 1, std::min(captured + captive, 0), minscore, maxscore);
 			if (red && next_score > best_score || !red && next_score < best_score)
 			{
 				best_score = next_score;

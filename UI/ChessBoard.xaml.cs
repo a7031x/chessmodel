@@ -2,17 +2,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace UI
 {
@@ -34,14 +27,14 @@ namespace UI
         {
             data.Reset();
             snap = data.GetSnap(0, redPlayer);
-            refresh();
+            Refresh();
         }
 
-        private void refresh()
+        private void Refresh()
         {
             int selection = moveList.SelectedIndex;
 
-            refreshList();
+            RefreshList();
 
             if (-1 == selection)
                 moveList.SelectedIndex = 0;
@@ -51,7 +44,7 @@ namespace UI
             }
         }
 
-        private void refreshList()
+        private void RefreshList()
         {
 
             moveList.Items.Clear();
@@ -67,7 +60,7 @@ namespace UI
       //      moveList.Items.Add("跟进");
         }
 
-        private void refreshBoard()
+        private void RefreshBoard()
         {
             var list = new List<UIElement>();
             foreach (var child in chessBoard.Children)
@@ -83,13 +76,15 @@ namespace UI
                 {
                     var chess = snap.Board[row * 9 + column];
                     if (0 == chess) continue;
-                    var shape = new ChessItem();
-                    shape.Type = chess;
-                    shape.Column = column;
-                    shape.Row = row;
-                    shape.Margin = new Thickness(column * 40 - 18, row * 40 - 18, 0, 0);
-                    shape.Width = 36;
-                    shape.Height = 36;
+                    var shape = new ChessItem
+                    {
+                        Type = chess,
+                        Column = column,
+                        Row = row,
+                        Margin = new Thickness(column * 40 - 18, row * 40 - 18, 0, 0),
+                        Width = 36,
+                        Height = 36
+                    };
                     shape.CanCheck = Utility.IsRed(shape.Type) == snap.RedTurn;
                     shape.ChessCheckedHandlers += OnChessChecked;
                     chessBoard.Children.Add(shape);
@@ -102,13 +97,15 @@ namespace UI
             data.AutoSetBoard(board, redTurn);
          //   if (false == autoTrack) return;
             snap = data.GetCurrentSnap(redPlayer);
-            refresh();
+            Refresh();
         }
 
-        private MoveInformation makeMoveInformation(string description = null)
+        private MoveInformation MakeMoveInformation(string description = null)
         {
-            var info = new MoveInformation();
-            info.Board = snap.Board.Clone() as byte[];
+            var info = new MoveInformation
+            {
+                Board = snap.Board.Clone() as byte[]
+            };
             Utility.StepBackword(info.Board, snap.LastMoveFrom, snap.LastMoveTo, snap.AteType);
             info.MoveFrom = snap.LastMoveFrom;
             info.MoveTo = snap.LastMoveTo;
@@ -184,15 +181,13 @@ namespace UI
             }
             else
             {
-                int column;
-                int row;
-                parsePosition(position, out column, out row);
+                parsePosition(position, out int column, out int row);
                 movePreviewer.Margin = new Thickness(column * 40 - 20, row * 40 - 20, 0, 0);
                 movePreviewer.Visibility = Visibility.Visible;
             }
         }
 
-        private void chessBoard_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        private void ChessBoard_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (0 != snap.StepCounter)
             {
@@ -200,7 +195,7 @@ namespace UI
             }
         }
 
-        private void chessBoard_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void ChessBoard_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             //判断该位置是否允许放棋子
             var position = e.GetPosition(chessBoard);
@@ -213,21 +208,20 @@ namespace UI
             data.MoveTo(snap.StepCounter);
             data.Move(snap.RedPlayer, Utility.PositionToIndex(chess.Column, chess.Row), Utility.PositionToIndex(column, row));
             snap = data.GetCurrentSnap(snap.RedPlayer);
-            refreshList();
+            RefreshList();
             e.Handled = true;
             moveList.SelectedIndex = moveList.Items.Count - 1;
             snap.StepCounter = moveList.Items.Count - 1;
             ValidateMoves();
         }
 
-        private void refreshScore()
+        private void RefreshScore()
         {
             var sw = Stopwatch.StartNew();
             var move_score = Python.Instance.Advice(snap.Board, snap.RedTurn);
             sw.Stop();
             scoreLabel.Text =
-                $"move: {Utility.GetMoveText(snap.Board, move_score[0], move_score[1])}\n" +
-                $"score: {move_score[2]}\n" +
+                $"move: {Utility.GetMoveText(snap.Board, move_score[0], move_score[1])} ({move_score[2]})\n" +
                 $"elapsed: {sw.ElapsedMilliseconds}";
             adviceMove = Tuple.Create(move_score[0], move_score[1]);
         }
@@ -259,30 +253,30 @@ namespace UI
             }
         }
 
-        private void moveList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void MoveList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (-1 == moveList.SelectedIndex)
                 return;
 
             snap = data.GetSnap(moveList.SelectedIndex, snap.RedPlayer);
 
-            refreshBoard();
+            RefreshBoard();
             if (null != moveList.SelectedItem)
                 moveList.ScrollIntoView(moveList.SelectedItem);
-            refreshScore();
+            RefreshScore();
         }
 
         private void rotateBoard_Click(object sender, RoutedEventArgs e)
         {
             snap = data.GetSnap(snap.StepCounter, !snap.RedPlayer);
-            refresh();
+            Refresh();
         }
 
         private void aiMove_Click(object sender, RoutedEventArgs e)
         {
             data.Move(snap.RedPlayer, adviceMove.Item1, adviceMove.Item2);
             snap = data.GetCurrentSnap(snap.RedPlayer);
-            refreshList();
+            RefreshList();
             e.Handled = true;
             moveList.SelectedIndex = moveList.Items.Count - 1;
             snap.StepCounter = moveList.Items.Count - 1;

@@ -33,7 +33,7 @@ def run_epoch(taskname, sess, model, dataset, method):
         count += 1
         total += size
         et = time()
-        if et - st >= 5:
+        if et - st >= 20:
             print('  ', taskname, '{:.2f}%'.format(total / len(dataset) * 100), 'loss: {:.4f}'.format(np.sqrt(total_loss / total)))
             st = et
     print('finish', taskname, 'loss: {:.4f}'.format(np.sqrt(total_loss / total)))
