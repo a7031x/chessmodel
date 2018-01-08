@@ -5,6 +5,8 @@ import asyncio
 import random
 from time import time
 
+MAX_TASKS = 1
+
 cache = {}
 session = requests.session()
 session.mount('http://', requests.adapters.HTTPAdapter(pool_connections=10))
@@ -118,7 +120,7 @@ def update_database(conn, queue, evaluating):
         st = time()
         count = 0
         abs_score = 0
-        fens = [queue.pop(random.randrange(len(queue))) for _ in range(min(len(queue), 16 - len(tasks)))]
+        fens = [queue.pop(random.randrange(len(queue))) for _ in range(min(len(queue), MAX_TASKS - len(tasks)))]
         for fen in fens:
             tasks.append(queryboards_fen_imply(fen, evaluating))
         finished, unfinished = loop.run_until_complete(asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED))
