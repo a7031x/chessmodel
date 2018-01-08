@@ -31,8 +31,10 @@ class Model:
             combined_embedding = tf.concat([embedding, zero], axis=0)
             #embed = tf.gather_nd(combined_embedding, self.input_square)#[None, 90, EMBEDDING_SIZE]
             embed = tf.gather_nd(combined_embedding, self.input_square)#[None, 90, None, EMBEDDING_SIZE]
-            reduced_embed = tf.reduce_prod(embed, axis=2) + tf.reduce_sum(embed, axis=2)#[None, 90, EMBEDDING_SIZE]
-            flattened = tf.reshape(reduced_embed, [-1, 90 * EMBEDDING_SIZE])
+            reduced_sum = tf.reduce_sum(embed, axis=2)#[None, 90, EMBEDDING_SIZE]
+            reduced_prod = (reduced_sum * reduced_sum - tf.reduce_sum(embed * embed, axis=2)) / 2
+            reduced_embed = tf.concat([reduced_sum, reduced_prod], axis=2)
+            flattened = tf.reshape(reduced_embed, [-1, 90 * EMBEDDING_SIZE * 2])
             layer0 = self.transform(0, flattened, 128, 'relu')
             layer1 = self.transform(1, layer0, 64, 'tanh')
             layer2 = self.transform(2, layer1, 64, 'relu')

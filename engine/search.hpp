@@ -12,6 +12,7 @@
 #include <ctime>
 #include <iostream>
 #include <unordered_set>
+#include "model.hpp"
 namespace fs = std::experimental::filesystem;
 
 class search_t
@@ -38,6 +39,7 @@ private:
 	int64_t _hit_count = 0;
 	int64_t _save_count = 0;
 	std::chrono::system_clock::time_point _start_time = std::chrono::system_clock::now();
+	model_t model;
 public:
 	search_t()
 	{

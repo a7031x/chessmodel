@@ -200,6 +200,7 @@
     <ClCompile Include="engine.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="model.hpp" />
     <ClInclude Include="rule.hpp" />
     <ClInclude Include="search.hpp" />
     <ClInclude Include="tdleaf_t.hpp" />

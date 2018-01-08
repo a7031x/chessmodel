@@ -7,7 +7,7 @@ from time import time
 
 cache = {}
 session = requests.session()
-session.mount('http://', requests.adapters.HTTPAdapter(pool_connections=500))
+session.mount('http://', requests.adapters.HTTPAdapter(pool_connections=10))
 
 def board_to_fen(board, red):
     rows = []
@@ -178,6 +178,10 @@ async def queryboards_fen_imply(fen, evaluating):
     while True:
         try:
             r = session.get('http://api.chessdb.cn:81/chessdb.php?action=queryall&board=' + query, timeout=1).text.strip('\x00')
+            if r == 'rate limit exceeded':
+                print(r)
+                await asyncio.sleep(1)
+                raise Exception(r)
             break
         except:
             print('retrying...')

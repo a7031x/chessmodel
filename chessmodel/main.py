@@ -57,7 +57,7 @@ def main(_):
                         print(score[0], search(board, red, 4)[1][0])
                 elif command == 'advice':
                     red, board = parameter
-                    moves, scores, _ = se.search(board, red, 4)#search(board, red, 5)
+                    moves, scores, _ = se.search(board, red, 1)#search(board, red, 5)
                     print(moves[0], scores[0])
                 elif command == 'train' or command == 'default':
                     run_train(sess, model, sv)
