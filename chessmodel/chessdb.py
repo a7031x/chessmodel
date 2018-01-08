@@ -138,7 +138,8 @@ def update_database(conn, queue, evaluating):
         tasks = list(unfinished)
         conn.commit()
         et = time()
-        print('records', len(evaluating), 'queue', len(queue), 'duration', et - st, 'pace', count / (et - st), 'score', abs_score / count)
+        if count != 0:
+            print('records', len(evaluating), 'queue', len(queue), 'duration', et - st, 'pace', count / (et - st), 'score', abs_score / count)
 
 
 def move_to_fen(board, red, move):
