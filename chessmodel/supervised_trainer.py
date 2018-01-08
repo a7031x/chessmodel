@@ -37,7 +37,7 @@ def run_epoch(taskname, sess, model, dataset, method):
             print('  ', taskname, '{:.2f}%'.format(total / len(dataset) * 100), 'loss: {:.4f}'.format(np.sqrt(total_loss / total)))
             st = et
     print('finish', taskname, 'loss: {:.4f}'.format(np.sqrt(total_loss / total)))
-    return total_loss / count
+    return total_loss / total
 
 
 def run_train(sess, model, sv):

@@ -99,12 +99,14 @@ def download_database():
     for board, score, expand in c.fetchall():
         evaluating.add(board)
         if expand == 0:
-            #queue.append(board)
+            queue.append(board)
+    '''
             queue.append((board, score))
     queue = sorted(queue, key=lambda x: abs(x[1]))
-    initial_queue_length = 10000
+    initial_queue_length = 20000
     if len(queue) > initial_queue_length:
         queue = [board for board, _ in queue[-initial_queue_length:]]
+    '''
     update_database(conn, queue, evaluating)
 
 

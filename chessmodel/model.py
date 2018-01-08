@@ -34,14 +34,16 @@ class Model:
             embed = tf.gather_nd(combined_embedding, self.input_square)#[None, 90, None, EMBEDDING_SIZE]
             reduced_embed = tf.reduce_prod(embed, axis=2) + tf.reduce_sum(embed, axis=2)#[None, 90, EMBEDDING_SIZE]
             flattened = tf.reshape(reduced_embed, [-1, 90 * EMBEDDING_SIZE])
-            layer0 = self.transform(0, flattened, 128, 'tanh')
+            layer0 = self.transform(0, flattened, 64, 'relu')
             layer1 = self.transform(1, layer0, 64, 'tanh')
-            layer2 = self.transform(2, layer1, 32, 'tanh')
-            layer3 = self.transform(3, layer2, 16, 'None')
-            layer4 = self.transform(30, layer3, 8, 'relu')#[None, 64]
+            layer2 = self.transform(2, layer1, 64, 'relu')
+            layer3 = self.transform(3, layer2, 32, 'tanh')
+            layer4 = self.transform(4, layer3, 32, 'relu')
+            layer5 = self.transform(5, layer4, 16, 'tanh')
+            layer6 = self.transform(30, layer5, 8, 'None')#[None, 64]
             #feature = self.transform(40, layer3, 32, 'None')#[None, 64]
            # feature = self.transform(0, flattened, 512, None)
-            self.score = tf.reduce_sum(layer3, -1)#[None]
+            self.score = tf.reduce_sum(layer6, -1)#[None]
 
 
     def create_loss(self):
