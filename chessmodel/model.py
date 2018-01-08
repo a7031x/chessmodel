@@ -40,8 +40,8 @@ class Model:
             layer2 = self.transform(2, layer1, 64, 'relu')
             layer3 = self.transform(3, layer2, 32, 'tanh')
             layer4 = self.transform(4, layer3, 32, 'relu')
-            layer51 = self.transform(51, layer4, 16, 'tanh')
-            layer52 = self.transform(52, layer2, 16, 'tanh')
+            layer51 = self.fm_transform(51, layer4, 16, 'tanh')
+            layer52 = self.fm_transform(52, layer2, 16, 'tanh')
             layer5 = layer51 + layer52
             layer6 = self.transform(30, layer5, 8, 'None')#[None, 64]
             tf.summary.histogram('layer0', layer0)
@@ -79,6 +79,13 @@ class Model:
             return tf.nn.tanh(output)
         else:
             return output
+
+
+    def fm_transform(self, layerid, input, output_dim, activation):
+        input_dim = input.shape[-1]
+        mx_input = tf.expand_dims(input, 1) * tf.expand_dims(input, 2)
+        fx_input = tf.reshape(mx_input, [-1, input_dim * input_dim])
+        return self.transform(layerid, fx_input, output_dim, activation)
 
 
     def train(self, sess, feed):
