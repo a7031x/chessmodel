@@ -42,8 +42,10 @@ class Model:
             layer52 = self.transform(52, layer2, 16, 'tanh')
             layer5 = layer51 + layer52
             layer6 = self.transform(30, layer5, 8, 'None')#[None, 64]
-            #feature = self.transform(40, layer3, 32, 'None')#[None, 64]
-           # feature = self.transform(0, flattened, 512, None)
+            tf.summary.histogram('layer0', layer0)
+            tf.summary.histogram('layer5.1', layer51)
+            tf.summary.histogram('layer5.2', layer52)
+            tf.summary.histogram('layer6', layer6)
             self.score = tf.reduce_sum(layer6, -1)#[None]
 
 
