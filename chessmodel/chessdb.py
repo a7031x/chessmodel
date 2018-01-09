@@ -198,13 +198,11 @@ async def queryboards_fen_imply(fen, evaluating):
     board, red = fen_to_board(fen)
     boards = []
     scores = []
-    tasks = []
+    results = []
     for move in movelist:
         if evaluating is not None and move_to_fen(board, red, move) in evaluating:
             continue
-        task = process_move(board, red, move)
-        tasks.append(task)
-    results = await asyncio.gather(*tasks)
+        results.append(await process_move(board, red, move))
     scores2 = []
     for next_fen, score, score2 in results:
         if score is None:
