@@ -40,6 +40,28 @@ def run_epoch(taskname, sess, model, dataset, method):
     return total_loss / total
 
 
+def flip(board):
+    r = ''
+    for y in range(10):
+        for x in range(9):
+            r += board[y * 9 + (8 - x)]
+    return r
+
+
+def enrich(dataset):
+    boards = set()
+    r = []
+    for board, red, score in dataset:
+        if board not in boards:
+            boards.add(board)
+            r.append((board, red, score))
+        board = flip(board)
+        if board not in boards:
+            boards.add(board)
+            r.append((board, red, score))
+    return r
+
+
 def run_train(sess, model, sv):
     iteration = 0
     dataset = list(read_database())
@@ -48,8 +70,9 @@ def run_train(sess, model, sv):
     random.shuffle(dataset)
     training_size = int(0.98 * len(dataset))
     training_set = dataset[:training_size]
+    training_set = enrich(training_set)
     validation_set = dataset[training_size:]
-    print('training set:', training_size, 'validation set:', len(validation_set))
+    print('training set:', len(training_set), 'validation set:', len(validation_set))
     while True:
         random.shuffle(training_set)
         run_epoch('validing', sess, model, validation_set, evaluate)
