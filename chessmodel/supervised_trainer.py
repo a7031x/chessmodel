@@ -76,6 +76,7 @@ def run_train(sess, model, sv, summary_op):
     training_size = int(0.98 * len(dataset))
     training_set = dataset[:training_size]
     training_set = enrich(training_set)
+    random.shuffle(training_set)
     validation_set = dataset[training_size:]
     print('training set:', len(training_set), 'validation set:', len(validation_set))
     last_error = run_epoch('validing', sess, model, validation_set, evaluate)
