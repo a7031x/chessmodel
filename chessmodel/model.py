@@ -40,7 +40,7 @@ class Model:
             layer2 = self.fm_transform(2, layer1, 64, 'relu')
             layer3 = self.transform(3, layer2, 32, 'tanh')
             layer4 = self.transform(4, layer3, 32, 'relu')
-            layer51 = self.transform(51, layer4, 16, 'tanh')
+            layer51 = self.transform(51, layer4, 16, 'relu')
             layer52 = self.transform(52, layer2, 16, 'tanh')
             layer5 = tf.concat([layer51, layer52], -1)
             layer6 = self.transform(30, layer5, 8, 'None')#[None, 64]
