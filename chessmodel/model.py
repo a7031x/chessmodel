@@ -21,6 +21,7 @@ class Model:
         with tf.name_scope('input'):
             self.input_square = tf.placeholder(tf.int32, shape=[None, 90, None, 2], name='input_square')
             self.input_length = tf.placeholder(tf.int32, shape=[None, 90], name='input_length')
+            self.input_basic_score = tf.placeholder(tf.float32, shape=[None], name='input_basic_score')
             self.input_score = tf.placeholder(tf.float32, shape=[None], name='input_score')
 
 
@@ -48,7 +49,7 @@ class Model:
             tf.summary.histogram('layer5.1', layer51)
             tf.summary.histogram('layer5.2', layer52)
             tf.summary.histogram('layer6', layer6)
-            self.score = tf.reduce_sum(layer6, -1)#[None]
+            self.score = tf.reduce_sum(layer6, -1) + self.input_basic_score#[None]
 
 
     def create_loss(self):

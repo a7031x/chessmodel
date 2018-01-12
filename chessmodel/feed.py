@@ -19,13 +19,23 @@ c2t = {
 }
 
 
-def normalized_square_map(board, red):
+def normalize_board(board, red):
     if red is False:
         board = [rule.flip_side(c) for c in board]
     pos = rule.find_chess(board, 'K')[0]
     if pos < 45:
         board = rule.rotate_board(board)
+    return board
+
+
+def normalized_square_map(board, red):
+    board = normalize_board(board, red)
     return square_map(board)
+
+
+def normalized_map_and_score(board, red):
+    board = normalize_board(board, red)
+    return square_map(board), rule.basic_score(board)
 
 
 def create_feed_row(row, mlen):
@@ -56,10 +66,13 @@ def create_feed_from_map(model, maps):
 
 def create_feed(model, batch_board_red):
     maps = []
+    scores = []
     for board, red in batch_board_red:
-        map = normalized_square_map(board, red)
+        map, score = normalized_map_and_score(board, red)
         maps.append(map)
+        scores.append(score)
     feed = create_feed_from_map(model, maps)
+    feed[model.input_basic_score] = scores
     return feed
 
 
