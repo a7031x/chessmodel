@@ -203,6 +203,7 @@
     <ClInclude Include="model.hpp" />
     <ClInclude Include="rule.hpp" />
     <ClInclude Include="search.hpp" />
+    <ClInclude Include="square_rule.hpp" />
     <ClInclude Include="tdleaf_t.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
