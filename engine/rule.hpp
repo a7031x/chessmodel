@@ -7,10 +7,11 @@
 #include <numeric>
 
 const int BASE = 100;
-const int GAMEOVER_THRESHOLD = 500 * BASE;
+const int GAMEOVER_THRESHOLD = 150 * BASE;
 
 class rule_t
 {
+	friend class square_rule_t;
 public:
 	static std::vector<char> chess_types()
 	{
@@ -27,7 +28,7 @@ public:
 			score_map['H'] = 4;
 			score_map['E'] = 1;
 			score_map['B'] = 1;
-			score_map['K'] = 1000;
+			score_map['K'] = 300;
 			score_map['C'] = 4;
 			score_map['P'] = 1;
 			for (auto type : rule_t::chess_types())

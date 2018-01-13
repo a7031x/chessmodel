@@ -1,5 +1,5 @@
 BASE = 100
-GAMEOVER_THRESHOLD = 500 * BASE
+GAMEOVER_THRESHOLD = 150 * BASE
 
 def next_steps(board, red):
     steps = []
