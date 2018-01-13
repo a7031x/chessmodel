@@ -99,7 +99,7 @@
     <LocalDebuggerEnvironment>PYTHONPATH=$(OutDir)</LocalDebuggerEnvironment>
     <DebuggerFlavor>$(DefaultDebuggerFlavor)</DebuggerFlavor>
     <OutDir>$(SolutionDir)chessmodel\</OutDir>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);E:\Source\Repos\tensorflow</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);E:\projects\github\tensorflow</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <TargetName>engine</TargetName>
@@ -109,7 +109,7 @@
     <LocalDebuggerEnvironment>PYTHONPATH=$(OutDir)</LocalDebuggerEnvironment>
     <DebuggerFlavor>$(DefaultDebuggerFlavor)</DebuggerFlavor>
     <OutDir>$(SolutionDir)chessmodel\</OutDir>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);E:\Source\Repos\tensorflow</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);E:\projects\github\tensorflow</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetName>engine$(PythonDebugSuffix)</TargetName>
@@ -119,7 +119,7 @@
     <LocalDebuggerEnvironment>PYTHONPATH=$(OutDir)</LocalDebuggerEnvironment>
     <DebuggerFlavor>$(DefaultDebuggerFlavor)</DebuggerFlavor>
     <OutDir>$(SolutionDir)chessmodel\</OutDir>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);E:\Source\Repos\tensorflow</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);E:\projects\github\tensorflow</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <TargetName>engine</TargetName>
@@ -129,7 +129,7 @@
     <LocalDebuggerEnvironment>PYTHONPATH=$(OutDir)</LocalDebuggerEnvironment>
     <DebuggerFlavor>$(DefaultDebuggerFlavor)</DebuggerFlavor>
     <OutDir>$(SolutionDir)chessmodel\</OutDir>
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);E:\Source\Repos\tensorflow</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);E:\projects\github\tensorflow</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

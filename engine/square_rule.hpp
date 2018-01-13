@@ -9,7 +9,7 @@ class square_rule_t
 public:
 	struct chess_state_t
 	{
-		char piece;
+		int piece;
 		int state;
 	};
 public:
