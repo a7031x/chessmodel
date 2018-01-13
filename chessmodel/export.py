@@ -20,6 +20,6 @@ def export_model(sess, export_path_base, version=1.4):
 tf.reset_default_graph()
 
 with tf.Session() as sess:
-    saver = tf.train.import_meta_graph(os.path.join(FLAGS.output_dir, 'model.ckpt-0.meta'))
+    saver = tf.train.import_meta_graph(os.path.join(FLAGS.output_dir, 'model.ckpt-578502.meta'))
     saver.restore(sess, tf.train.latest_checkpoint(FLAGS.output_dir))
     export_model(sess, os.path.join('.', 'model'))

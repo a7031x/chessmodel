@@ -50,6 +50,7 @@ class Model:
             tf.summary.histogram('layer5.2', layer52)
             tf.summary.histogram('layer6', layer6)
             self.score = tf.reduce_sum(layer6, -1) + self.input_basic_score#[None]
+            self.score = tf.identity(self.score, "score")
 
 
     def create_loss(self):
