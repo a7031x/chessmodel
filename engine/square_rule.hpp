@@ -13,9 +13,10 @@ public:
 		int state;
 	};
 public:
-	static std::array<std::vector<chess_state_t>, 90> square_map(const std::string& board)
+	typedef std::array<std::vector<chess_state_t>, 90> square_map_t;
+	static  square_map_t square_map(const std::string& board)
 	{
-		std::array<std::vector<chess_state_t>, 90> map;
+		square_map_t map;
 
 		for (int k = 0; k < 90; ++k)
 		{

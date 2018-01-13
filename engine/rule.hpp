@@ -42,6 +42,21 @@ public:
 		auto r = std::accumulate(board.begin(), board.end(), 0, [](int a, char b) { return a + score_map[b]; });
 		return r;
 	}
+
+	static char flip_side(char piece)
+	{
+		if (move_t::is_red(piece))
+			return tolower(piece);
+		else if (' ' == piece)
+			return piece;
+		else
+			return toupper(piece);
+	}
+
+	static std::string rotate_board(const std::string& board)
+	{
+		return std::string(board.rbegin(), board.rend());
+	}
 };
 
 class move_t
@@ -96,7 +111,7 @@ public:
 		}
 		return steps;
 	}
-private:
+
 	static std::vector<int> rider_steps(const std::string& board, int pos)
 	{
 		std::vector<int> steps;
@@ -301,7 +316,6 @@ private:
 		return steps;
 	}
 
-private:
 	static bool is_red(char chess)
 	{
 		return 'A' <= chess && 'Z' >= chess;
@@ -318,7 +332,6 @@ private:
 	{
 		return std::pair<int, int>(pos % 9, pos / 9);
 	}
-
 	static int side(char chess)
 	{
 		if (is_red(chess))

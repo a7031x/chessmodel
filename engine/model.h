@@ -3,12 +3,9 @@
 #include <string>
 #include <memory>
 
-class model_t
+class model_t abstract
 {
 public:
-	model_t();
-	static std::vector<float> predict(const std::vector<std::string> &boards, bool red);
-
-private:
-	std::shared_ptr<class ClientSession> _session;
+	virtual std::vector<float> predict(const std::vector<std::string> &boards, bool red) = 0;
+	static std::shared_ptr<model_t> create();
 };
