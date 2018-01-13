@@ -37,6 +37,7 @@ def next_rider_covers(board, pos):
                     break
 
     for r in [range(py+1, 10), range(py-1, -1, -1)]:
+        state = 0
         for y in r:
             p = position_1(px, y)
             if state is 0:
