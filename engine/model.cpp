@@ -9,7 +9,9 @@
 class model_imply : model_t
 {
 public:
-	model_imply()
+	model_imply() : piece_to_id(
+		{ {'R', 0}, {'N', 1}, {'B', 2}, {'A', 3}, {'K', 4}, {'C', 5}, {'P', 6},
+		{'r', 7}, {'n', 8}, {'b', 9}, {'a', 10}, {'k', 11}, {'c', 12}, {'p', 13} })
 	{
 		_bundle = std::make_shared<tensorflow::SavedModelBundle>();
 		auto status = tensorflow::LoadSavedModel(tensorflow::SessionOptions(), tensorflow::RunOptions(), "./model/1.4", { "serve" }, &*_bundle);
@@ -18,7 +20,7 @@ public:
 
 	std::vector<float> predict(const std::vector<std::string> &boards, bool red) override
 	{
-		std::vector<square_rule_t::square_map_t> maps;
+		std::vector<square_rule_t::square_map_t> maps, feed_maps;
 		std::vector<int> scores;
 		for (auto& board : boards)
 		{
@@ -31,23 +33,42 @@ public:
 
 		auto batch_size = (int)boards.size();
 		std::vector<std::array<int, 90>> length;
+		int mlen = 0;
 		for (auto& map : maps)
 		{
 			std::array<int, 90> x;
 			for (int k = 0; k < 90; ++k)
 				x[k] = map[k].size();
+			mlen = std::max((int)*std::max_element(x.begin(), x.end()), mlen);
 			length.push_back(x);
 		}
 
-		tensorflow::Tensor input_length(tensorflow::DT_FLOAT, tensorflow::TensorShape({ batch_size, 90 });
-		auto input_map = create_feed_from_map(maps);
-		auto input_scores = create_feed_from_score(scores);
+		for (auto& map : maps)
+		{
+			square_rule_t::square_map_t feed_map;
+			for (int k = 0; k < 90; ++k)
+			{
+				feed_map[k] = create_feed_row(map[k], mlen);
+			}
+			feed_maps.push_back(feed_map);
+		}
 	}
 
 private:
-	tensorflow::Tensor create_feed_from_map(const std::vector<square_rule_t::square_map_t>& maps)
+	std::vector<square_rule_t::chess_state_t> create_feed_row(const std::vector<square_rule_t::chess_state_t>& row, int mlen)
 	{
-
+		std::vector<square_rule_t::chess_state_t> feed_row;
+		for (auto& state : row)
+		{
+			auto state2 = state;
+			state2.piece = piece_to_id[state.piece];
+			feed_row.push_back(state2);
+		}
+		for (auto k = feed_row.size(); k < size_t(mlen); ++k)
+		{
+			feed_row.push_back({ 14, 0 });
+		}
+		return feed_row;
 	}
 
 	std::pair<square_rule_t::square_map_t, int> normalized_map_and_score(const std::string& board, bool red)
@@ -74,6 +95,7 @@ private:
 
 private:
 	std::shared_ptr<tensorflow::SavedModelBundle> _bundle;
+	std::unordered_map<char, int> piece_to_id;
 };
 
 std::shared_ptr<model_t> model_t::create()
