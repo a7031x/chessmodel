@@ -37,6 +37,9 @@
     <Compile Include="console.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="export.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="feed.py">
       <SubType>Code</SubType>
     </Compile>

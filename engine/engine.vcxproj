@@ -198,9 +198,10 @@
   <ItemGroup>
     <ClCompile Include="command.cpp" />
     <ClCompile Include="engine.c" />
+    <ClCompile Include="model.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="model.hpp" />
+    <ClInclude Include="model.h" />
     <ClInclude Include="rule.hpp" />
     <ClInclude Include="search.hpp" />
     <ClInclude Include="square_rule.hpp" />

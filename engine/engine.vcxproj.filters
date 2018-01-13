@@ -21,6 +21,9 @@
     <ClCompile Include="command.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="model.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="rule.hpp">
@@ -32,10 +35,10 @@
     <ClInclude Include="tdleaf_t.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="model.hpp">
+    <ClInclude Include="square_rule.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="square_rule.hpp">
+    <ClInclude Include="model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
