@@ -16,6 +16,7 @@ namespace UI
     {
         private ChessBoardData data = new ChessBoardData();
         private ChessBoardSnap snap;
+        private bool isAiMove = false;
         private Tuple<int, int> adviceMove;
         public ChessBoard()
         {
@@ -217,6 +218,8 @@ namespace UI
 
         private void RefreshScore()
         {
+            if (isAiMove)
+                return;
             var sw = Stopwatch.StartNew();
             var move_score = Python.Instance.Advice(snap.Board, snap.RedTurn);
             sw.Stop();
@@ -274,12 +277,14 @@ namespace UI
 
         private void aiMove_Click(object sender, RoutedEventArgs e)
         {
+            isAiMove = true;
             data.Move(snap.RedPlayer, adviceMove.Item1, adviceMove.Item2);
             snap = data.GetCurrentSnap(snap.RedPlayer);
             RefreshList();
             e.Handled = true;
             moveList.SelectedIndex = moveList.Items.Count - 1;
             snap.StepCounter = moveList.Items.Count - 1;
+            isAiMove = false;
         }
     }
 
