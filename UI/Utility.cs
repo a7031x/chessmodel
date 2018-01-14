@@ -8,6 +8,36 @@ namespace UI
 {
     public class Utility
     {
+        public static String TransformBoard(byte[] board, char empty = '#')
+        {
+            var r = string.Empty;
+            foreach (var c in board)
+                r += TransformChess(c, empty);
+            return r;
+        }
+
+        public static char TransformChess(byte chess, char empty)
+        {
+            switch (chess)
+            {
+                case 256 - 6: return 'r';
+                case 256 - 2: return 'n';
+                case 256 - 5: return 'b';
+                case 256 - 4: return 'a';
+                case 256 - 3: return 'k';
+                case 256 - 7: return 'c';
+                case 256 - 1: return 'p';
+                case 6: return 'R';
+                case 2: return 'N';
+                case 5: return 'B';
+                case 4: return 'A';
+                case 3: return 'K';
+                case 7: return 'C';
+                case 1: return 'P';
+                default: return empty;
+            }
+        }
+
         public static void RotateBoard(byte[] board)
         {
             for (int k = 0; k < 45; ++k)

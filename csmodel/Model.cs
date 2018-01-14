@@ -20,21 +20,17 @@ namespace csmodel
             session = sess;
         }
 
-        public float[] Predict(string[] boards, bool red)
+        public float[] Predict(IEnumerable<string> boards, bool red)
         {
-            var mlen = 1;
-            var squareBuffer = new int[boards.Length * 90 * mlen * 2];
-            var lengthBuffer = new int[boards.Length * 90];
-            for(var k = 0; k < 90; ++k)
-            {
-                squareBuffer[k * 2] = 14;
-                squareBuffer[k * 2 + 1] = 0;
-                lengthBuffer[k] = 1;
-            }
-            var inputSquare = TFTensor.FromBuffer(new TFShape(boards.Length, 90, mlen, 2), squareBuffer, 0, squareBuffer.Length);
-            var inputLength = TFTensor.FromBuffer(new TFShape(boards.Length, 90), lengthBuffer, 0, lengthBuffer.Length);
-            var inputScore = TFTensor.FromBuffer(new TFShape(boards.Length), new float[] { 100 }, 0, 1);
-            return Predict(inputSquare, inputLength, inputScore);
+            var batch = boards.Count();
+            var (squares, lengths, scores) = Feeder.Feed(boards, red);
+            var mlen = lengths.Max();
+            var inputLength = TFTensor.FromBuffer(new TFShape(batch, 90), lengths, 0, lengths.Length);
+            var inputSquare = TFTensor.FromBuffer(new TFShape(batch, 90, mlen, 2), squares, 0, squares.Length);
+            var inputBasicScore = TFTensor.FromBuffer(new TFShape(batch), scores, 0, scores.Length);
+            scores = Predict(inputSquare, inputLength, inputBasicScore);
+            scores = scores.Select(x => red ? x : -x).ToArray();
+            return scores;
         }
 
         private float[] Predict(TFTensor inputSquare, TFTensor inputLength, TFTensor inputBasicScore)

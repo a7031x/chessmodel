@@ -61,39 +61,9 @@ namespace UI
             return r;
         }
 
-        public String TransformBoard(byte[] board)
-        {
-            var r = string.Empty;
-            foreach (var c in board)
-                r += TransformChess(c);
-            return r;
-        }
-
-        public char TransformChess(byte chess)
-        {
-            switch (chess)
-            {
-                case 256 - 6: return 'r';
-                case 256 - 2: return 'n';
-                case 256 - 5: return 'b';
-                case 256 - 4: return 'a';
-                case 256 - 3: return 'k';
-                case 256 - 7: return 'c';
-                case 256 - 1: return 'p';
-                case 6: return 'R';
-                case 2: return 'N';
-                case 5: return 'B';
-                case 4: return 'A';
-                case 3: return 'K';
-                case 7: return 'C';
-                case 1: return 'P';
-                default: return '#';
-            }
-        }
-
         public IEnumerable<Tuple<int, int>> GetMoves(byte[] chessBoard, bool red)
         {
-            var board = TransformBoard(chessBoard);
+            var board = Utility.TransformBoard(chessBoard);
             var command = $"get_moves {(red ? 1 : 0)} {board}";
             var response = Call(command);
             var tokens = response
@@ -111,7 +81,7 @@ namespace UI
 
         public Tuple<double, double> GetScore(byte[] chessBoard, bool red)
         {
-            var board = TransformBoard(chessBoard);
+            var board = Utility.TransformBoard(chessBoard);
             var command = $"evaluate {(red ? 1 : 0)} {board}";
             var response = Call(command);
             var scores = response.Split(' ');
@@ -120,7 +90,7 @@ namespace UI
 
         public int[] Advice(byte[] chessBoard, bool red)
         {
-            var board = TransformBoard(chessBoard);
+            var board = Utility.TransformBoard(chessBoard);
             var command = $"advice {(red ? 1 : 0)} {board}";
             var response = Call(command);
             var numbers = response.Split(new[] { '(', ')', ',', ' ' }, StringSplitOptions.RemoveEmptyEntries).ToArray();
@@ -130,7 +100,7 @@ namespace UI
 
         internal Tuple<int, int> Evaluate(byte[] chessBoard, bool red)
         {
-            var board = TransformBoard(chessBoard);
+            var board = Utility.TransformBoard(chessBoard);
             var command = $"evaluate {(red ? 1 : 0)} {board}";
             var response = Call(command);
             var move = response.Split(new[] { '(', ')', ',', ' ' }, StringSplitOptions.RemoveEmptyEntries).Select(int.Parse);

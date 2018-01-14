@@ -18,8 +18,10 @@ namespace UI
         private ChessBoardSnap snap;
         private bool isAiMove = false;
         private Tuple<int, int> adviceMove;
+        private SharpEngine _engine;
         public ChessBoard()
         {
+            _engine = new SharpEngine();
             InitializeComponent();
             Reset(true);
         }
@@ -213,7 +215,7 @@ namespace UI
             e.Handled = true;
             moveList.SelectedIndex = moveList.Items.Count - 1;
             snap.StepCounter = moveList.Items.Count - 1;
-            ValidateMoves();
+            //ValidateMoves();
         }
 
         private void RefreshScore()
@@ -221,12 +223,12 @@ namespace UI
             if (isAiMove)
                 return;
             var sw = Stopwatch.StartNew();
-            var move_score = Python.Instance.Advice(snap.Board, snap.RedTurn);
+            var move_score = _engine.Advice(snap.Board, snap.RedTurn);
             sw.Stop();
             scoreLabel.Text =
-                $"move: {Utility.GetMoveText(snap.Board, move_score[0], move_score[1])} ({move_score[2]})\n" +
+                $"move: {Utility.GetMoveText(snap.Board, move_score.Move.Item1, move_score.Move.Item2)} ({move_score.Score})\n" +
                 $"elapsed: {sw.ElapsedMilliseconds}";
-            adviceMove = Tuple.Create(move_score[0], move_score[1]);
+            adviceMove = move_score.Move;
         }
 
         private void ValidateMoves()
