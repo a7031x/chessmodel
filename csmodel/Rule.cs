@@ -19,7 +19,7 @@ namespace csmodel
 
         public static int BasicScore(string board)
         {
-            return board.Sum(x => scoreMap[x]);
+            return board.Sum(x => scoreMap[x]) * Base;
         }
 
         public static char FlipSide(char piece)
@@ -115,7 +115,7 @@ namespace csmodel
                 var p = Position1(x, y);
                 if (Side(board[p]) * Side(board[pos]) <= 0)
                     steps.Add(p);
-                return ' ' != board[p];
+                return ' ' == board[p];
             }
 
             for (int x = px + 1; x < 9 && checkAdd(x, py); ++x);

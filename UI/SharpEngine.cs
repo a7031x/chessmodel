@@ -23,7 +23,7 @@ namespace UI
         public SearchEngine.SearchItem Advice(byte[] chessBoard, bool red)
         {
             var board = Utility.TransformBoard(chessBoard, ' ');
-            var results = _engine.Search(board, red, 4);
+            var results = _engine.Search(board, red, 3);
             return results[0];
         }
     }
