@@ -1,6 +1,5 @@
 import rule
 import random
-import trainer
 import torch
 import torch.nn as nn
 import numpy as np
@@ -11,8 +10,8 @@ import board_queue
 
 def predict(model, batch_board_red):
     feed = data.create_feed(batch_board_red)
-    scores = model(feed['square'], feed['length'])
-    return data.unfeed(scores, [red for _, red in batch_board_red])
+    scores = model(feed['square'], feed['length']).sigmoid()
+    return np.array(data.unfeed(scores.tolist(), [red for _, red in batch_board_red]))
 
 
 def train(model, criterion, batch_board_red_score, optimizer):
@@ -37,13 +36,13 @@ def tdleaf(model, initial_board, red, lamb=0.7, depth=12):
             series.append((gameover_board, not red, gameover_score))
             break
         scores = batch_evaluate(model, boards, not red)
-        board, score = sample(boards, scores.tolist(), red)
+        board, score = sample(boards, scores, red)
         red = not red
         series.append((board, red, score))
 
     batch_board_red_score = [(board, red, gameover_score)
                              for board, red, _ in series]
-    loss = trainer.train(model, criterion, batch_board_red_score, optimizer)
+    loss = train(model, criterion, batch_board_red_score, optimizer)
     return loss, len(batch_board_red_score)
 
 
@@ -77,9 +76,9 @@ def evaluate(sess, model, board, red):
 
 def batch_evaluate(model, boards, red):
     batch_board_red = [(board, red) for board in boards]
-    scores = trainer.predict(model, batch_board_red).sigmoid()
+    scores = predict(model, batch_board_red)
     #scores = [random.randint(-1000, 1000) for _ in boards]
-    return scores.tolist()
+    return scores
 
 
 def sample(boards, scores, red):
@@ -88,8 +87,9 @@ def sample(boards, scores, red):
         weights = 1 - scores
     else:
         weights = scores
-    board, score = np.random.choice(zip(boards, scores), 1, weights)[0]
-    return board, score
+    weights = weights / np.sum(weights)
+    idx = np.random.choice(len(boards), 1, p=weights)[0]
+    return boards[idx], scores[idx]
 
 
 def pv_position(initial_board, red):
