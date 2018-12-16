@@ -79,10 +79,10 @@ def create_feed(batch_board_red):
 def create_train_feed(batch_board_red_score):
     feed = create_feed([(board, red)
                         for board, red, _ in batch_board_red_score])
-    feed['target'] = [score if red else -
+    feed['target'] = [score if red else 1.0 -
                       score for _, red, score in batch_board_red_score]
     return feed
 
 
 def unfeed(batch_score, batch_red):
-    return [score if red else -score for score, red in zip(batch_score, batch_red)]
+    return [score if red else 1.0 - score for score, red in zip(batch_score, batch_red)]
