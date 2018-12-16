@@ -33,12 +33,13 @@ def tdleaf(model, initial_board, red, lamb=0.7, depth=12):
         boards = next_boards(initial_board, red)
         gameover_board, gameover_score = contains_gameover(boards, red)
         if gameover_board is not None:
-            series.append((gameover_board, not red, gameover_score))
+            #series.append((gameover_board, not red, gameover_score))
             break
         scores = batch_evaluate(model, boards, not red)
         board, score = sample(boards, scores, red)
         red = not red
         series.append((board, red, score))
+        initial_board = board
 
     batch_board_red_score = [(board, red, gameover_score)
                              for board, red, _ in series]
