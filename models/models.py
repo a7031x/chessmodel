@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import math
 import func
+import numpy as np
 
 EMBEDDING_SIZE = 16
 
@@ -56,10 +57,16 @@ class Model(nn.Module):
 class Loss(nn.Module):
     def __init__(self):
         super(__class__, self).__init__()
-        self.criterion = nn.BCEWithLogitsLoss(reduction='sum')
+        self.criterion = nn.BCEWithLogitsLoss(reduction='none')
 
-    def forward(self, score, target):
-        return self.criterion(score, func.tensor(target).float())
+    def forward(self, score, target, lamb):
+        weights = np.array([lamb] * len(target))
+        weights[0] = 1.0
+        weights = np.cumprod(weights)
+        weights = np.flip(weights)
+        loss = self.criterion(score, func.tensor(
+            target).float()) * func.tensor(weights.tolist())
+        return loss.sum(), np.sum(weights)
 
 
 def build_model():

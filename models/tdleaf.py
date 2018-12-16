@@ -14,15 +14,15 @@ def predict(model, batch_board_red):
     return np.array(data.unfeed(scores.tolist(), [red for _, red in batch_board_red]))
 
 
-def train(model, criterion, batch_board_red_score, optimizer):
+def train(model, criterion, batch_board_red_score, optimizer, lamb):
     feed = data.create_train_feed(batch_board_red_score)
     score = model(feed['square'], feed['length'])
-    loss = criterion(score, feed['target'])
+    loss, weight = criterion(score, feed['target'], lamb)
     optimizer.zero_grad()
     loss.backward()
     nn.utils.clip_grad_norm_(model.parameters(), 5.0)
     optimizer.step()
-    return loss.tolist()
+    return loss.tolist(), weight
 
 
 def tdleaf(model, initial_board, red, lamb=0.7, depth=12):
@@ -43,8 +43,9 @@ def tdleaf(model, initial_board, red, lamb=0.7, depth=12):
 
     batch_board_red_score = [(board, red, gameover_score)
                              for board, red, _ in series]
-    loss = train(model, criterion, batch_board_red_score, optimizer)
-    return loss, len(batch_board_red_score)
+    loss, weight = train(
+        model, criterion, batch_board_red_score, optimizer, lamb)
+    return loss, weight
 
 
 def run_train():
