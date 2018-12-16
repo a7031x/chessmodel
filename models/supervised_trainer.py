@@ -26,7 +26,7 @@ def train(model, batch_board_red_score, optimizer):
     loss.backward()
     nn.utils.clip_grad_norm_(model.parameters(), 5.0)
     optimizer.step()
-    return loss
+    return loss.tolist()
 
 
 def run_epoch(taskname, model, dataset, method):
@@ -34,14 +34,20 @@ def run_epoch(taskname, model, dataset, method):
     total_loss = 0
     total = 0
     count = 0
+    st = time()
     optimizer = torch.optim.Adam(model.parameters(), lr=1E-3)
-    for cursor in range(0, len(dataset), batch_size):
+    num_records = len(dataset)
+    for cursor in range(0, num_records, batch_size):
         size = min(len(dataset) - cursor, batch_size)
         batch = dataset[cursor:(cursor+size)]
         loss = method(model, batch, optimizer)
         total_loss += loss
         count += 1
         total += size
+        et = time()
+        if et - st >= 20:
+            print(f'{cursor/num_records*100:>.2F} loss: {loss/size:>.4F}')
+            st = et
     print('finish', taskname, 'loss: {:.4f}'.format(
         np.sqrt(total_loss / total)))
     return total_loss / total
