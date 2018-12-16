@@ -1,32 +1,13 @@
-import rule
-import tensorflow as tf
+import torch.nn as nn
 import rule
 import numpy as np
 from model import Model
 from options import *
 from board_queue import BoardQueue
 from square_rule import *
-from feed import *
+import data
 from tdleaf import *
 from chessdb import *
-
-def predict(sess, model, batch_board_red):
-    feed = create_feed(model, batch_board_red)
-    scores = sess.run(model.score, feed)
-    return unfeed(scores, [red for _, red in batch_board_red])
-
-
-def train(sess, model, batch_board_red_score):
-    feed = create_train_feed(model, batch_board_red_score)
-    score, loss, _ = sess.run([model.score, model.loss, model.optimizer], feed)
-    score = unfeed(score, [red for _, red, _ in batch_board_red_score])
-    label = [x for _, _, x in batch_board_red_score]
-  #  print('score: ', [int(x) for x in score])
-  #  print('label: ', [int(x) for x in label])
-    print('SCORE/LABEL')
-    print(list(zip([int(x) for x in score], [int(x) for x in label])))
-    print('signc: ', sum([1 if (x < 0) == (y < 0) else 0 for x, y in zip(score, label)]))
-    return loss
 
 
 def run_train(sess, model, sv):

@@ -16,6 +16,13 @@
             "request": "launch",
             "program": "${workspaceFolder}/supervised_trainer.py",
             "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "unsupervised",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/tdleaf.py",
+            "cwd": "${workspaceFolder}"
         }
     ]
 }

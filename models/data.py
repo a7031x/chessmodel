@@ -47,13 +47,13 @@ def create_feed_row(row, mlen):
     return feed_row
 
 
-def create_feed_from_map(model, maps):
-    feed_lens = [[len(row) for row in map] for map in maps]
+def create_feed_from_map(maps):
+    feed_lens = [[len(row) for row in m] for m in maps]
     mlen = max([max(x) for x in feed_lens])
     feed_maps = []
-    for map in maps:
+    for m in maps:
         feed_map = []
-        for row in map:
+        for row in m:
             feed_row = create_feed_row(row, mlen)
             feed_map.append(feed_row)
         feed_maps.append(feed_map)
@@ -64,21 +64,21 @@ def create_feed_from_map(model, maps):
     return feed
 
 
-def create_feed(model, batch_board_red):
+def create_feed(batch_board_red):
     maps = []
     scores = []
     for board, red in batch_board_red:
         map, score = normalized_map_and_score(board, red)
         maps.append(map)
         scores.append(score)
-    feed = create_feed_from_map(model, maps)
+    feed = create_feed_from_map(maps)
     feed['basic_score'] = scores
     return feed
 
 
-def create_train_feed(model, batch_board_red_score):
-    feed = create_feed(model, [(board, red)
-                               for board, red, _ in batch_board_red_score])
+def create_train_feed(batch_board_red_score):
+    feed = create_feed([(board, red)
+                        for board, red, _ in batch_board_red_score])
     feed['target'] = [score if red else -
                       score for _, red, score in batch_board_red_score]
     return feed

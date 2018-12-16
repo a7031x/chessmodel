@@ -18,13 +18,12 @@ class Model(nn.Module):
         self.layer4 = self.transform_layer(32, 32, nn.ReLU)
         self.layer51 = self.transform_layer(32, 16, nn.ReLU)
         self.layer52 = self.transform_layer(64, 16, nn.Tanh)
-        self.layer5 = self.transform_layer(32 + 1, 32, nn.ReLU)
+        self.layer5 = self.transform_layer(32, 32, nn.ReLU)
         self.layer6 = self.transform_layer(32, 1, None)
 
-    def forward(self, square, length, basic_score):
+    def forward(self, square, length):
         square = func.tensor(square)
         length = func.tensor(length)
-        basic_score = func.tensor(basic_score).float()
         batch, sn, tp, _ = square.shape
         #emb = self.square_embedding(square[:, :, :, 0]).view(batch, sn, tp, 4, EMBEDDING_SIZE)
         #emb = torch.gather(emb, 3, square[:, :, :, ])
@@ -41,8 +40,7 @@ class Model(nn.Module):
         layer4 = self.layer4(layer3)
         layer51 = self.layer51(layer4)
         layer52 = self.layer52(layer2)
-        layer5 = self.layer5(
-            torch.cat([layer51, layer52, basic_score.unsqueeze(-1)], dim=-1))
+        layer5 = self.layer5(torch.cat([layer51, layer52], dim=-1))
         layer6 = self.layer6(layer5)
         score = layer6.squeeze(-1)
         return score
@@ -58,7 +56,7 @@ class Model(nn.Module):
 class Loss(nn.Module):
     def __init__(self):
         super(__class__, self).__init__()
-        self.criterion = nn.MSELoss(reduction='sum')
+        self.criterion = nn.BCEWithLogitsLoss(reduction='sum')
 
     def forward(self, score, target):
         return self.criterion(score, func.tensor(target).float())
